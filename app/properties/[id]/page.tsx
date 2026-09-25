@@ -92,7 +92,13 @@ export default function PropertyDetailPage({ params }: { params: { id: string } 
             <aside className="space-y-6">
               <div className="border rounded-lg p-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">${property.price.toLocaleString()}</h2>
+                  <h2 className="text-2xl font-bold">
+                    {property.status === "For Rent"
+                      ? `₹${property.price.toLocaleString("en-IN")} / mo`
+                      : property.price >= 10000000
+                      ? `₹${(property.price / 10000000).toFixed(2)} Cr`
+                      : `₹${(property.price / 100000).toFixed(2)} Lakhs`}
+                  </h2>
                   <span className="text-sm text-muted-foreground">{type}</span>
                 </div>
                 <div className="mt-6 space-y-4">

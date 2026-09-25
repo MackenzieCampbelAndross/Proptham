@@ -6,7 +6,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react"
 export type Locale = "en" | "ar"
 export type Direction = "ltr" | "rtl"
 
-const STORAGE_KEY = "estatehub-locale"
+const STORAGE_KEY = "proptham-locale"
 
 const dictionaries = {
   en: {
@@ -26,7 +26,7 @@ const dictionaries = {
       arabic: "Arabic",
     },
     home: {
-      heroTitle: "Find Your Dream Home",
+      heroTitle: "Find your destined property",
       heroSubtitle: "Discover the perfect property that fits your lifestyle and budget.",
       locationPlaceholder: "Location",
       propertyType: "Property Type",
@@ -60,13 +60,13 @@ const dictionaries = {
       forSaleSubtitle: "Browse our selection of properties available for purchase.",
       forRentTitle: "Properties For Rent",
       forRentSubtitle: "Browse our selection of properties available for rent.",
-      aboutTitle: "About EstateHub",
-      aboutSubtitle: "Your trusted partner in real estate since 2010.",
+      aboutTitle: "About Proptham",
+      aboutSubtitle: "Your trusted partner in real estate.",
       ourStory: "Our Story",
       storyOne:
-        "EstateHub was founded in 2010 with a simple mission: to make real estate transactions transparent, efficient, and stress-free.",
+        "Proptham was founded with a simple mission: to make real estate transactions transparent, efficient, and stress-free.",
       storyTwo:
-        "Over the years, we've helped thousands of clients find their dream homes, sell their properties at the best possible price, and make smart investment decisions.",
+        "Over the years, we've helped thousands of clients find their destined properties, sell their properties at the best possible price, and make smart investment decisions.",
       valuesTitle: "Our Values",
       valuesSubtitle: "The principles that guide everything we do.",
       integrity: "Integrity",
@@ -90,7 +90,7 @@ const dictionaries = {
       viewProfile: "View Profile",
       joinTeam: "Join Our Team",
       joinTeamText:
-        "Are you a real estate professional looking for a supportive team and excellent resources? We're always looking for talented agents to join EstateHub.",
+        "Are you a real estate professional looking for a supportive team and excellent resources? We're always looking for talented agents to join Proptham.",
       viewOpenPositions: "View Open Positions",
       contactUs: "Contact Us",
       contactTitle: "Contact Us",
@@ -106,12 +106,12 @@ const dictionaries = {
       subject: "Subject",
       message: "Message",
       messagePlaceholder: "I'm interested in learning more about...",
-      careersTitle: "Careers at EstateHub",
+      careersTitle: "Careers at Proptham",
       careersSubtitle: "Join our growing team and help shape the future of real estate.",
       privacyTitle: "Privacy Policy",
-      privacyText: "Your privacy matters to us. This page outlines how EstateHub protects your information.",
+      privacyText: "Your privacy matters to us. This page outlines how Proptham protects your information.",
       termsTitle: "Terms of Service",
-      termsText: "Review the terms that apply when using EstateHub services and tools.",
+      termsText: "Review the terms that apply when using Proptham services and tools.",
     },
     detail: {
       addToFavorites: "Add to favorites",
@@ -174,27 +174,27 @@ const dictionaries = {
       items: [
         {
           quote:
-            "EstateHub made finding our dream home a breeze. Their team was professional, knowledgeable, and always available to answer our questions.",
+            "Proptham made finding our destined property a breeze. Their team was professional, knowledgeable, and always available to answer our questions.",
           name: "Sarah Johnson",
           role: "Homeowner",
         },
         {
           quote:
-            "We sold our property in record time thanks to EstateHub. Their marketing strategy and network of buyers made all the difference.",
+            "We sold our property in record time thanks to Proptham. Their marketing strategy and network of buyers made all the difference.",
           name: "Michael Thompson",
           role: "Property Seller",
         },
         {
           quote:
-            "As a first-time investor, I appreciated the guidance and expertise that EstateHub provided. They helped me find the perfect investment property.",
+            "As a first-time investor, I appreciated the guidance and expertise that Proptham provided. They helped me find the perfect investment property.",
           name: "Emily Rodriguez",
           role: "Property Investor",
         },
       ],
     },
     footer: {
-      tagline: "Your trusted partner in real estate since 2010.",
-      rights: "© 2023 EstateHub. All rights reserved.",
+      tagline: "Your trusted partner in real estate.",
+      rights: "© Proptham. All rights reserved.",
       company: "Company",
       careers: "Careers",
       legal: "Legal",
@@ -274,7 +274,7 @@ const dictionaries = {
       arabic: "العربية",
     },
     home: {
-      heroTitle: "اعثر على منزل أحلامك",
+      heroTitle: "اعثر على عقارك المقدر",
       heroSubtitle: "اكتشف العقار المناسب لأسلوب حياتك وميزانيتك.",
       locationPlaceholder: "الموقع",
       propertyType: "نوع العقار",
@@ -308,10 +308,10 @@ const dictionaries = {
       forSaleSubtitle: "تصفح العقارات المتاحة للشراء.",
       forRentTitle: "عقارات للإيجار",
       forRentSubtitle: "تصفح العقارات المتاحة للإيجار.",
-      aboutTitle: "عن EstateHub",
-      aboutSubtitle: "شريكك الموثوق في العقارات منذ عام 2010.",
+      aboutTitle: "عن Proptham",
+      aboutSubtitle: "شريكك الموثوق في العقارات.",
       ourStory: "قصتنا",
-      storyOne: "تأسست EstateHub عام 2010 بهدف بسيط: جعل المعاملات العقارية واضحة وسهلة وخالية من التوتر.",
+      storyOne: "تأسست Proptham بهدف بسيط: جعل المعاملات العقارية واضحة وسهلة وخالية من التوتر.",
       storyTwo: "ساعدنا آلاف العملاء على العثور على منازلهم، وبيع عقاراتهم بأفضل سعر، واتخاذ قرارات استثمارية ذكية.",
       valuesTitle: "قيمنا",
       valuesSubtitle: "المبادئ التي توجه كل ما نقوم به.",
@@ -334,7 +334,7 @@ const dictionaries = {
       years: "سنوات",
       viewProfile: "عرض الملف",
       joinTeam: "انضم إلى فريقنا",
-      joinTeamText: "هل أنت محترف عقاري تبحث عن فريق داعم وموارد ممتازة؟ نبحث دائما عن وكلاء موهوبين للانضمام إلى EstateHub.",
+      joinTeamText: "هل أنت محترف عقاري تبحث عن فريق داعم وموارد ممتازة؟ نبحث دائما عن وكلاء موهوبين للانضمام إلى Proptham.",
       viewOpenPositions: "عرض الوظائف المتاحة",
       contactUs: "اتصل بنا",
       contactTitle: "اتصل بنا",
@@ -350,12 +350,12 @@ const dictionaries = {
       subject: "الموضوع",
       message: "الرسالة",
       messagePlaceholder: "أرغب في معرفة المزيد عن...",
-      careersTitle: "الوظائف في EstateHub",
+      careersTitle: "الوظائف في Proptham",
       careersSubtitle: "انضم إلى فريقنا المتنامي وساعد في تشكيل مستقبل العقارات.",
       privacyTitle: "سياسة الخصوصية",
-      privacyText: "خصوصيتك مهمة لنا. توضح هذه الصفحة كيف تحمي EstateHub معلوماتك.",
+      privacyText: "خصوصيتك مهمة لنا. توضح هذه الصفحة كيف تحمي Proptham معلوماتك.",
       termsTitle: "شروط الخدمة",
-      termsText: "راجع الشروط التي تنطبق عند استخدام خدمات وأدوات EstateHub.",
+      termsText: "راجع الشروط التي تنطبق عند استخدام خدمات وأدوات Proptham.",
     },
     detail: {
       addToFavorites: "أضف إلى المفضلة",
@@ -417,25 +417,25 @@ const dictionaries = {
       subtitle: "لا تكتف بكلامنا فقط. هذه بعض آراء عملائنا.",
       items: [
         {
-          quote: "ساعدتنا EstateHub على العثور على منزل أحلامنا بسهولة. كان الفريق محترفا ومتعاونا دائما.",
+          quote: "ساعدتنا Proptham على العثور على منزل أحلامنا بسهولة. كان الفريق محترفا ومتعاونا دائما.",
           name: "سارة جونسون",
           role: "مالكة منزل",
         },
         {
-          quote: "بعنا عقارنا في وقت قياسي بفضل EstateHub. استراتيجية التسويق وشبكة المشترين أحدثتا فارقا كبيرا.",
+          quote: "بعنا عقارنا في وقت قياسي بفضل Proptham. استراتيجية التسويق وشبكة المشترين أحدثتا فارقا كبيرا.",
           name: "مايكل طومسون",
           role: "بائع عقار",
         },
         {
-          quote: "كمستثمرة لأول مرة، قدرت الإرشاد والخبرة التي قدمتها EstateHub حتى وجدت العقار الاستثماري المناسب.",
+          quote: "كمستثمرة لأول مرة، قدرت الإرشاد والخبرة التي قدمتها Proptham حتى وجدت العقار الاستثماري المناسب.",
           name: "إيميلي رودريغيز",
           role: "مستثمرة عقارية",
         },
       ],
     },
     footer: {
-      tagline: "شريكك الموثوق في العقارات منذ عام 2010.",
-      rights: "© 2023 EstateHub. جميع الحقوق محفوظة.",
+      tagline: "شريكك الموثوق في العقارات.",
+      rights: "© Proptham. جميع الحقوق محفوظة.",
       company: "الشركة",
       careers: "الوظائف",
       legal: "قانوني",

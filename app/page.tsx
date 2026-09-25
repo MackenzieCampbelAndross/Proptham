@@ -1,302 +1,459 @@
-'use client'
+"use client"
+
+import { useState, useMemo } from "react"
 import Link from "next/link"
-import { Search } from "lucide-react"
+import { useRouter } from "next/navigation"
+import {
+  Search,
+  MapPin,
+  Home as HomeIcon,
+  Briefcase,
+  Bed,
+  Bath,
+  Maximize2,
+  SlidersHorizontal,
+  ChevronDown,
+  ArrowUpDown,
+  Heart,
+  ShieldCheck,
+  ChevronRight,
+  X
+} from "lucide-react"
+
+import AppHeader from "@/components/app-header"
+import AppFooter from "@/components/app-footer"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import FeaturedProperties from "@/components/featured-properties"
-import Testimonials from "@/components/testimonials"
-import LanguageSwitcher from "@/components/language-switcher"
-import { useI18n } from "@/lib/i18n"
- 
+import { properties, Property } from "@/data/properties"
+import { trackEvent } from "@/lib/analytics"
+
 export default function Home() {
-  const { direction, t } = useI18n()
- 
+  const router = useRouter()
+  const [heroImgError, setHeroImgError] = useState(false)
+
+  // Hero Search State
+  const [searchLocation, setSearchLocation] = useState("")
+  const [searchType, setSearchType] = useState("All Types")
+  const [searchBudget, setSearchBudget] = useState("Any Budget")
+
+  // Top Picks Interactive Filter State
+  const [selectedCity, setSelectedCity] = useState("All")
+  const [selectedType, setSelectedType] = useState("All")
+  const [selectedStatus, setSelectedStatus] = useState("All")
+  const [selectedBeds, setSelectedBeds] = useState<number | "All">("All")
+  const [sortBy, setSortBy] = useState<"recommended" | "price-asc" | "price-desc">("recommended")
+  const [favorites, setFavorites] = useState<string[]>([])
+
+  const toggleFavorite = (id: string, e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setFavorites((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
+  }
+
+  // Hero Search Submission
+  const handleHeroSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    trackEvent("search_submitted", { location: searchLocation, type: searchType, budget: searchBudget })
+    
+    const params = new URLSearchParams()
+    if (searchLocation.trim()) params.set("q", searchLocation.trim())
+    if (searchType !== "All Types") params.set("type", searchType)
+    if (searchBudget !== "Any Budget") params.set("budget", searchBudget)
+    
+    router.push(`/properties?${params.toString()}`)
+  }
+
+  // Filtered Properties for Top Picks Section
+  const filteredProperties = useMemo(() => {
+    return properties
+      .filter((p) => {
+        if (selectedCity !== "All" && p.city !== selectedCity && p.locality !== selectedCity) {
+          return false
+        }
+        if (selectedType !== "All" && p.type !== selectedType) {
+          return false
+        }
+        if (selectedStatus !== "All" && p.status !== selectedStatus) {
+          return false
+        }
+        if (selectedBeds !== "All" && p.beds < Number(selectedBeds)) {
+          return false
+        }
+        if (searchBudget === "under-1cr" && (p.price > 10000000 || p.status === "For Rent")) {
+          return false
+        }
+        if (searchBudget === "1cr-2cr" && (p.price < 10000000 || p.price > 20000000 || p.status === "For Rent")) {
+          return false
+        }
+        if (searchBudget === "above-2cr" && (p.price < 20000000 || p.status === "For Rent")) {
+          return false
+        }
+        if (searchBudget === "rent" && p.status !== "For Rent") {
+          return false
+        }
+        return true
+      })
+      .sort((a, b) => {
+        if (sortBy === "price-asc") return a.price - b.price
+        if (sortBy === "price-desc") return b.price - a.price
+        return 0
+      })
+  }, [selectedCity, selectedType, selectedStatus, selectedBeds, sortBy])
+
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="border-b">
-        <div className="container flex h-16 items-center justify-between px-4 md:px-6">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold">EstateHub</span>
-          </Link>
-          <nav className="hidden md:flex gap-6">
-            <Link href="/" className="text-sm font-medium hover:underline underline-offset-4">
-              {t.nav.home}
-            </Link>
-            <Link href="/properties" className="text-sm font-medium hover:underline underline-offset-4">
-              {t.nav.properties}
-            </Link>
-            <Link href="/agents" className="text-sm font-medium hover:underline underline-offset-4">
-              {t.nav.agents}
-            </Link>
-            <Link href="/about" className="text-sm font-medium hover:underline underline-offset-4">
-              {t.nav.about}
-            </Link>
-            <Link href="/contact" className="text-sm font-medium hover:underline underline-offset-4">
-              {t.nav.contact}
-            </Link>
-          </nav>
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher />
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/auth/signin">{t.nav.signIn}</Link>
-            </Button>
-            <Button size="sm" asChild>
-              <Link href="/auth/signup">{t.nav.signUp}</Link>
-            </Button>
+    <div className="flex flex-col min-h-screen bg-white font-sans text-slate-900">
+      
+      {/* HEADER OVERLAY */}
+      <AppHeader transparent={true} />
+
+      {/* ==================================================
+          SECTION 01: CINEMATIC PROPERTY SEARCH HERO (~75vh)
+          REPRODUCED EXACTLY FROM THE REFERENCE IMAGE
+      ================================================== */}
+      <section className="relative w-full h-[75vh] min-h-[580px] max-h-[760px] flex flex-col justify-center overflow-hidden bg-slate-950 text-white">
+        {/* Background Image (Luxury Mansion on the Right, Dark Sky on the Left) */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src={heroImgError ? "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop" : "/hero-bg.jpg"}
+            onError={() => setHeroImgError(true)}
+            alt=""
+            aria-hidden="true"
+            className="w-full h-full object-cover object-right sm:object-center scale-105"
+          />
+          {/* Subtle Dark Left Gradient to create Negative Space for Headline & Search */}
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/60 to-transparent" />
+        </div>
+
+        {/* Hero Left Content Container */}
+        <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 pt-14 z-10">
+          <div className="max-w-4xl space-y-6 text-left">
+            
+            {/* MAIN TITLE (Line 1: FIND YOUR, Line 2: DESTINED PROPERTY) */}
+            <h1 className="font-anton text-5xl sm:text-7xl lg:text-8xl tracking-wider text-white uppercase leading-[0.95] drop-shadow-xl text-left max-w-4xl">
+              FIND YOUR<br />
+              <span className="text-teal-400">DESTINED</span> PROPERTY
+            </h1>
+
+            {/* FLOATING WHITE SEARCH CONTAINER (Pill Shape) */}
+            <form
+              onSubmit={handleHeroSearch}
+              className="bg-white rounded-full p-2.5 pl-6 shadow-2xl border border-white/20 max-w-3xl w-full text-slate-900 flex flex-wrap lg:flex-nowrap items-center justify-between gap-3"
+            >
+              {/* Field 1: Location */}
+              <div className="flex items-center gap-3 flex-1 min-w-[180px]">
+                <MapPin className="h-4.5 w-4.5 text-[#00a896] shrink-0" />
+                <div className="flex-1">
+                  <label className="text-[11px] font-bold text-slate-800 uppercase tracking-wider block leading-tight">
+                    Location
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="Where do you want to live?"
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                    className="border-0 p-0 h-5 text-xs text-slate-500 placeholder:text-slate-400 focus-visible:ring-0 bg-transparent font-normal"
+                  />
+                </div>
+              </div>
+
+              {/* Vertical Divider */}
+              <div className="h-8 w-px bg-slate-200 hidden lg:block shrink-0" />
+
+              {/* Field 2: Property Type */}
+              <div className="flex items-center gap-3 flex-1 min-w-[170px]">
+                <HomeIcon className="h-4.5 w-4.5 text-[#00a896] shrink-0" />
+                <div className="flex-1">
+                  <label className="text-[11px] font-bold text-slate-800 uppercase tracking-wider block leading-tight">
+                    Property Type
+                  </label>
+                  <select
+                    value={searchType}
+                    onChange={(e) => setSearchType(e.target.value)}
+                    className="w-full bg-transparent text-xs text-slate-500 border-0 focus:outline-none cursor-pointer p-0 h-5 font-normal"
+                  >
+                    <option value="All Types">Apartment, Villa, Plot...</option>
+                    <option value="Apartment">Apartment</option>
+                    <option value="Villa">Villa</option>
+                    <option value="Plot">Plot</option>
+                    <option value="Penthouse">Penthouse</option>
+                    <option value="House">House</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Vertical Divider */}
+              <div className="h-8 w-px bg-slate-200 hidden lg:block shrink-0" />
+
+              {/* Field 3: Budget */}
+              <div className="flex items-center gap-3 flex-1 min-w-[140px]">
+                <Briefcase className="h-4.5 w-4.5 text-[#00a896] shrink-0" />
+                <div className="flex-1">
+                  <label className="text-[11px] font-bold text-slate-800 uppercase tracking-wider block leading-tight">
+                    Budget
+                  </label>
+                  <select
+                    value={searchBudget}
+                    onChange={(e) => setSearchBudget(e.target.value)}
+                    className="w-full bg-transparent text-xs text-slate-500 border-0 focus:outline-none cursor-pointer p-0 h-5 font-normal"
+                  >
+                    <option value="Any Budget">Budget</option>
+                    <option value="under-1cr">Under ₹1 Crore</option>
+                    <option value="1cr-2cr">₹1 Cr – ₹2 Cr</option>
+                    <option value="above-2cr">Above ₹2 Cr</option>
+                    <option value="rent">For Rent (&lt; ₹50k)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Search Submit Button (Deep Teal Pill) */}
+              <Button
+                type="submit"
+                size="lg"
+                className="bg-[#00a896] hover:bg-teal-600 text-white font-semibold text-sm rounded-full px-7 h-12 shadow-md flex items-center justify-center gap-2 shrink-0 border-0 cursor-pointer"
+              >
+                <Search className="h-4 w-4" /> Search
+              </Button>
+            </form>
           </div>
         </div>
-      </header>
-      <main className="flex-1">
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-[url('https://images.unsplash.com/photo-1505521586751-90af6a8d5efa?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none text-white drop-shadow-md">
-                  {t.home.heroTitle}
-                </h1>
-                <p className="mx-auto max-w-[700px] text-white md:text-xl drop-shadow-md">
-                  {t.home.heroSubtitle}
-                </p>
+      </section>
+
+      {/* ==================================================
+          SECTION 02: TOP PICKS / PROPERTY DISCOVERY (White)
+          EXACT REPRODUCTION OF REFERENCE BAR & CARDS
+      ================================================== */}
+      <section className="w-full py-10 md:py-14 bg-white text-slate-900 border-b">
+        <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 space-y-6">
+          
+          {/* Section Title */}
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight text-left">
+            Top Picks
+          </h2>
+
+          {/* Filter Bar Controls (Rounded Pill Chips) */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
+            
+            {/* Left Filters */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              
+              {/* Location Pill */}
+              <div className="relative">
+                <select
+                  value={selectedCity}
+                  onChange={(e) => setSelectedCity(e.target.value)}
+                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
+                >
+                  <option value="Chennai">Chennai</option>
+                  <option value="OMR">OMR</option>
+                  <option value="Velachery">Velachery</option>
+                  <option value="Sholinganallur">Sholinganallur</option>
+                  <option value="Bangalore">Bangalore</option>
+                  <option value="Whitefield">Whitefield</option>
+                  <option value="Hyderabad">Hyderabad</option>
+                  <option value="Pune">Pune</option>
+                  <option value="Mumbai">Mumbai</option>
+                  <option value="All">All Locations</option>
+                </select>
+                <MapPin className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
-              <div className="w-full max-w-3xl bg-white rounded-lg shadow-lg p-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="md:col-span-2">
-                    <div className="relative">
-                      <Search className={`absolute top-2.5 h-4 w-4 text-muted-foreground ${direction === "rtl" ? "right-2.5" : "left-2.5"}`} />
-                      <Input type="text" placeholder={t.home.locationPlaceholder} className={direction === "rtl" ? "pr-8" : "pl-8"} />
+
+              {/* Property Type Filter Pill */}
+              <div className="relative">
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
+                >
+                  <option value="All">Property Type</option>
+                  <option value="Apartment">Apartment</option>
+                  <option value="Villa">Villa</option>
+                  <option value="Plot">Plot</option>
+                  <option value="Penthouse">Penthouse</option>
+                  <option value="House">House</option>
+                </select>
+                <HomeIcon className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              {/* Budget Filter Pill */}
+              <div className="relative">
+                <select
+                  value={searchBudget}
+                  onChange={(e) => setSearchBudget(e.target.value)}
+                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
+                >
+                  <option value="Any Budget">Budget</option>
+                  <option value="under-1cr">Under ₹1 Cr</option>
+                  <option value="1cr-2cr">₹1 Cr – ₹2 Cr</option>
+                  <option value="above-2cr">Above ₹2 Cr</option>
+                </select>
+                <Briefcase className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              {/* Bedrooms Filter Pill */}
+              <div className="relative">
+                <select
+                  value={selectedBeds}
+                  onChange={(e) => setSelectedBeds(e.target.value === "All" ? "All" : Number(e.target.value))}
+                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
+                >
+                  <option value="All">Bedrooms</option>
+                  <option value="2">2+ Beds</option>
+                  <option value="3">3+ Beds</option>
+                  <option value="4">4+ Beds</option>
+                </select>
+                <Bed className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              {/* Status Filter Pill */}
+              <div className="relative">
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
+                >
+                  <option value="All">Status</option>
+                  <option value="For Sale">For Sale</option>
+                  <option value="For Rent">For Rent</option>
+                </select>
+                <Badge className="bg-transparent text-slate-600 p-0 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none border-0">
+                  <ShieldCheck className="h-3.5 w-3.5 text-slate-600" />
+                </Badge>
+                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              {/* More Filters Button */}
+              <button
+                onClick={() => setSelectedCity("All")}
+                className="bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold px-4 py-2.5 rounded-full border border-slate-200/60 transition-colors flex items-center gap-1.5"
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5 text-slate-600" /> More Filters
+              </button>
+            </div>
+
+            {/* Right Sort By Dropdown */}
+            <div className="relative shrink-0">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
+              >
+                <option value="recommended">Sort By</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+              </select>
+              <ArrowUpDown className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            </div>
+          </div>
+
+          {/* PROPERTY CARDS GRID */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5 pt-3">
+            {filteredProperties.map((p) => {
+              const isFav = favorites.includes(p.id)
+              return (
+                <div
+                  key={p.id}
+                  className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Image Container */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                      <img
+                        src={p.image}
+                        alt={p.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      {/* Favorite Button */}
+                      <button
+                        onClick={(e) => toggleFavorite(p.id, e)}
+                        aria-label="Add to Favorites"
+                        className="absolute top-3 right-3 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md transition-colors"
+                      >
+                        <Heart className={`h-4 w-4 ${isFav ? "fill-rose-500 text-rose-500" : "text-white"}`} />
+                      </button>
+
+                      <div className="absolute top-3 left-3 flex gap-1.5">
+                        <Badge className="bg-slate-950/80 text-white text-[10px] font-semibold backdrop-blur-md">
+                          {p.status}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Property Meta Details */}
+                    <div className="p-4 space-y-2">
+                      <div className="flex items-center gap-1 text-[11px] text-slate-500">
+                        <MapPin className="h-3.5 w-3.5 text-[#00a896] shrink-0" />
+                        <span className="truncate">{p.location}</span>
+                      </div>
+
+                      <h3 className="font-bold text-slate-950 text-sm leading-snug group-hover:text-[#00a896] transition-colors line-clamp-1">
+                        {p.title}
+                      </h3>
+
+                      {/* Specs Row */}
+                      <div className="flex items-center gap-3 text-[11px] text-slate-600 pt-1 border-t border-slate-100">
+                        {p.beds > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Bed className="h-3.5 w-3.5 text-slate-400" />
+                            <span>{p.beds} Beds</span>
+                          </div>
+                        )}
+                        {p.baths > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Bath className="h-3.5 w-3.5 text-slate-400" />
+                            <span>{p.baths} Baths</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                          <Maximize2 className="h-3.5 w-3.5 text-slate-400" />
+                          <span>{p.sqft.toLocaleString()} sq.ft</span>
+                        </div>
+                      </div>
+
+                      {/* Price Row */}
+                      <div className="pt-2">
+                        <div className="text-lg font-extrabold text-slate-950 leading-tight">
+                          {p.status === "For Rent"
+                            ? `₹${p.price.toLocaleString()} / mo`
+                            : p.price >= 10000000
+                            ? `₹${(p.price / 10000000).toFixed(2)} Cr`
+                            : `₹${(p.price / 100000).toFixed(2)} Lakhs`}
+                        </div>
+                        {p.pricePerSqFt && (
+                          <div className="text-[11px] font-semibold text-[#00a896]">
+                            ₹{p.pricePerSqFt.toLocaleString()} / sq.ft
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t.home.propertyType} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="house">{t.home.house}</SelectItem>
-                      <SelectItem value="apartment">{t.home.apartment}</SelectItem>
-                      <SelectItem value="condo">{t.home.condo}</SelectItem>
-                      <SelectItem value="townhouse">{t.home.townhouse}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Button className="w-full">{t.home.search}</Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <FeaturedProperties />
-        <section className="w-full py-12 md:py-24 lg:py-32 bg-muted">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center justify-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">{t.home.whyTitle}</h2>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  {t.home.whySubtitle}
-                </p>
-              </div>
-              <div className="grid responsive-card-grid gap-8 mt-8">
-                <div className="flex flex-col items-center space-y-2 border rounded-lg p-6 bg-background">
-                  <div className="p-2 bg-primary/10 rounded-full">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6 text-primary"
+
+                  {/* Card Action */}
+                  <div className="px-4 pb-4 pt-1">
+                    <Button
+                      variant="outline"
+                      className="w-full border-slate-200 text-slate-900 hover:bg-[#00a896] hover:text-white hover:border-[#00a896] font-semibold text-xs h-9 rounded-xl transition-colors flex items-center justify-center gap-1"
+                      asChild
                     >
-                      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z" />
-                    </svg>
+                      <Link href={`/properties/${p.id}`}>
+                        View Property <ChevronRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </Button>
                   </div>
-                  <h3 className="text-xl font-bold">{t.home.premiumTitle}</h3>
-                  <p className="text-muted-foreground text-center">
-                    {t.home.premiumText}
-                  </p>
                 </div>
-                <div className="flex flex-col items-center space-y-2 border rounded-lg p-6 bg-background">
-                  <div className="p-2 bg-primary/10 rounded-full">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6 text-primary"
-                    >
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                      <circle cx="9" cy="7" r="4" />
-                      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold">{t.home.agentsTitle}</h3>
-                  <p className="text-muted-foreground text-center">
-                    {t.home.agentsText}
-                  </p>
-                </div>
-                <div className="flex flex-col items-center space-y-2 border rounded-lg p-6 bg-background">
-                  <div className="p-2 bg-primary/10 rounded-full">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="h-6 w-6 text-primary"
-                    >
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
-                    </svg>
-                  </div>
-                  <h3 className="text-xl font-bold">{t.home.secureTitle}</h3>
-                  <p className="text-muted-foreground text-center">
-                    {t.home.secureText}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <Testimonials />
-      </main>
-      <footer className="border-t bg-muted">
-        <div className="container flex flex-col md:flex-row items-center justify-between gap-4 py-10 px-4 md:px-6">
-          <div className="flex flex-col gap-2">
-            <Link href="/" className="flex items-center gap-2">
-              <span className="text-xl font-bold">EstateHub</span>
-            </Link>
-            <p className="text-sm text-muted-foreground">{t.footer.tagline}</p>
-          </div>
-          <div className="flex flex-col md:flex-row gap-8 md:gap-12">
-            <div className="space-y-2">
-              <h4 className="font-medium">{t.footer.company}</h4>
-              <ul className="grid gap-1">
-                <li>
-                  <Link href="/about" className="text-sm hover:underline">
-                    {t.nav.about}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/careers" className="text-sm hover:underline">
-                    {t.footer.careers}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-sm hover:underline">
-                    {t.nav.contact}
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">{t.nav.properties}</h4>
-              <ul className="grid gap-1">
-                <li>
-                  <Link href="/properties" className="text-sm hover:underline">
-                    {t.footer.allProperties}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/properties/for-sale" className="text-sm hover:underline">
-                    {t.footer.forSale}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/properties/for-rent" className="text-sm hover:underline">
-                    {t.footer.forRent}
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h4 className="font-medium">{t.footer.legal}</h4>
-              <ul className="grid gap-1">
-                <li>
-                  <Link href="/privacy" className="text-sm hover:underline">
-                    {t.footer.privacy}
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms" className="text-sm hover:underline">
-                    {t.footer.terms}
-                  </Link>
-                </li>
-              </ul>
-            </div>
+              )
+            })}
           </div>
         </div>
-        <div className="border-t py-6">
-          <div className="container flex flex-col md:flex-row items-center justify-between gap-4 px-4 md:px-6">
-            <p className="text-sm text-muted-foreground">{t.footer.rights}</p>
-            <div className="flex items-center gap-4">
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-                </svg>
-                <span className="sr-only">Facebook</span>
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                  <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-                </svg>
-                <span className="sr-only">Instagram</span>
-              </Link>
-              <Link href="#" className="text-muted-foreground hover:text-foreground">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
-                </svg>
-                <span className="sr-only">Twitter</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      </section>
+
+      {/* FOOTER */}
+      <AppFooter />
     </div>
   )
 }

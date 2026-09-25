@@ -1,6 +1,6 @@
-# EstateHub - Real Estate Website
+# Proptham - Real Estate Website
 
-![EstateHub Homepage](./public/screenshot.png)
+![Proptham Homepage](./public/screenshot.png)
 
 A modern real estate website built with Next.js, featuring property listings, search functionality, and a beautiful UI.
 

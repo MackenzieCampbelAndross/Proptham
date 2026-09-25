@@ -9,11 +9,11 @@ export default function AppFooter() {
   const { t } = useI18n()
 
   return (
-    <footer className="border-t bg-muted">
+    <footer className="border-t bg-muted/30">
       <div className="container flex flex-col md:flex-row items-center justify-between gap-4 py-10 px-4 md:px-6">
         <div className="flex flex-col gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="text-xl font-bold">EstateHub</span>
+          <Link href="/" className="flex items-center">
+            <span className="font-anton text-xl tracking-wider uppercase text-foreground">PROPTHAM</span>
           </Link>
           <p className="text-sm text-muted-foreground">{t.footer.tagline}</p>
         </div>

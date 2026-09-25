@@ -7,7 +7,7 @@ export const agents = [
     specialties: "Luxury Homes, Waterfront Properties",
     languages: "English, Spanish",
     experience: 12,
-    email: "john.smith@estatehub.com",
+    email: "john.smith@proptham.com",
     phone: "(555) 123-4567",
   },
   {
@@ -18,7 +18,7 @@ export const agents = [
     specialties: "First-time Buyers, Residential",
     languages: "English, French",
     experience: 8,
-    email: "sarah.johnson@estatehub.com",
+    email: "sarah.johnson@proptham.com",
     phone: "(555) 234-5678",
   },
   {
@@ -29,7 +29,7 @@ export const agents = [
     specialties: "Commercial, Investment Properties",
     languages: "English, Mandarin",
     experience: 15,
-    email: "michael.chen@estatehub.com",
+    email: "michael.chen@proptham.com",
     phone: "(555) 345-6789",
   },
   {
@@ -40,7 +40,7 @@ export const agents = [
     specialties: "Suburban Homes, Condos",
     languages: "English, Spanish",
     experience: 5,
-    email: "emily.rodriguez@estatehub.com",
+    email: "emily.rodriguez@proptham.com",
     phone: "(555) 456-7890",
   },
   {
@@ -51,7 +51,7 @@ export const agents = [
     specialties: "High-end Properties, Estates",
     languages: "English",
     experience: 20,
-    email: "david.thompson@estatehub.com",
+    email: "david.thompson@proptham.com",
     phone: "(555) 567-8901",
   },
   {
@@ -62,7 +62,7 @@ export const agents = [
     specialties: "Rental Properties, Property Management",
     languages: "English, Korean",
     experience: 7,
-    email: "jessica.kim@estatehub.com",
+    email: "jessica.kim@proptham.com",
     phone: "(555) 678-9012",
   },
 ]

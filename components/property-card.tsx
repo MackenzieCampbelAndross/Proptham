@@ -46,7 +46,7 @@ export default function PropertyCard({ property }: { property: Property }) {
             <span className="text-sm text-muted-foreground truncate">{location}</span>
           </div>
           <div className="mt-3">
-            <span className="text-xl font-bold">${property.price.toLocaleString()}</span>
+            <span className="text-xl font-bold">${property.price.toLocaleString("en-IN")}</span>
             <span className="text-sm text-muted-foreground ms-1">{type}</span>
           </div>
           <div className="grid grid-cols-1 min-[380px]:grid-cols-3 gap-2 mt-4 text-sm">

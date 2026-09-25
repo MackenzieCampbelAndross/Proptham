@@ -29,7 +29,7 @@ export default function ContactPage() {
                   (555) 123-4567
                 </ContactItem>
                 <ContactItem icon={<Mail className="h-6 w-6 text-primary" />} title={t.pages.email}>
-                  info@estatehub.com
+                  info@proptham.com
                 </ContactItem>
               </div>
               <div className="aspect-video overflow-hidden rounded-lg bg-muted flex items-center justify-center">

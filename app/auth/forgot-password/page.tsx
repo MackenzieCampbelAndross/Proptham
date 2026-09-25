@@ -13,7 +13,7 @@ export default function ForgotPasswordPage() {
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <div className="absolute inset-x-4 top-4 flex items-center justify-between md:inset-x-8 md:top-8">
         <Link href="/" className="flex items-center">
-          <span className="text-xl font-bold">EstateHub</span>
+          <span className="font-anton text-2xl tracking-wider uppercase text-foreground">PROPTHAM</span>
         </Link>
         <LanguageSwitcher />
       </div>
