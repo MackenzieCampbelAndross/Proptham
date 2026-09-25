@@ -27,39 +27,47 @@ export default function PropertyCard({ property }: { property: Property }) {
   const location = localizedProperty?.location ?? property.location
   const type = localizedProperty?.type ?? property.type
 
+  const formattedPrice = property.price >= 10000000
+    ? `₹${(property.price / 10000000).toFixed(2)} Cr`
+    : property.price >= 100000
+    ? `₹${(property.price / 100000).toFixed(2)} Lakhs`
+    : `₹${property.price.toLocaleString("en-IN")}`
+
   return (
     <Link href={`/properties/${property.id}`}>
-      <div className="group h-full overflow-hidden rounded-lg border hover:shadow-md transition-shadow">
-        <div className="relative aspect-video overflow-hidden">
+      <div className="group h-full overflow-hidden rounded-xl border border-slate-200 bg-white hover:shadow-md transition-shadow">
+        <div className="relative aspect-video overflow-hidden bg-slate-100">
           <Image
             src={property.image || "/placeholder.svg"}
             alt={title}
             fill
-            className="object-cover transition-transform group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            loading="lazy"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          <Badge className="absolute end-2 top-2">{status}</Badge>
+          <Badge className="absolute end-2 top-2 bg-slate-950/80 backdrop-blur-md text-white border-0">{status}</Badge>
         </div>
         <div className="p-4">
-          <h3 className="font-bold truncate">{title}</h3>
+          <h3 className="font-bold text-slate-900 truncate">{title}</h3>
           <div className="flex items-center gap-1 mt-1">
-            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground truncate">{location}</span>
+            <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+            <span className="text-xs text-slate-500 truncate">{location}</span>
           </div>
-          <div className="mt-3">
-            <span className="text-xl font-bold">${property.price.toLocaleString("en-IN")}</span>
-            <span className="text-sm text-muted-foreground ms-1">{type}</span>
+          <div className="mt-3 flex items-baseline justify-between">
+            <span className="text-lg font-bold text-teal-700">{formattedPrice}</span>
+            <span className="text-xs font-medium text-slate-500">{type}</span>
           </div>
-          <div className="grid grid-cols-1 min-[380px]:grid-cols-3 gap-2 mt-4 text-sm">
+          <div className="grid grid-cols-3 gap-2 mt-4 text-xs text-slate-600 border-t pt-3">
             <div className="flex min-w-0 items-center gap-1">
-              <Bed className="h-4 w-4 text-muted-foreground" />
+              <Bed className="h-3.5 w-3.5 text-slate-400" />
               <span className="truncate">{property.beds} {t.property.beds}</span>
             </div>
             <div className="flex min-w-0 items-center gap-1">
-              <Bath className="h-4 w-4 text-muted-foreground" />
+              <Bath className="h-3.5 w-3.5 text-slate-400" />
               <span className="truncate">{property.baths} {t.property.baths}</span>
             </div>
             <div className="flex min-w-0 items-center gap-1">
-              <Square className="h-4 w-4 text-muted-foreground" />
+              <Square className="h-3.5 w-3.5 text-slate-400" />
               <span className="truncate">{property.sqft} {t.property.sqft}</span>
             </div>
           </div>
