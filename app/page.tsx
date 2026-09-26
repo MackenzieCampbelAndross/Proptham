@@ -1,11 +1,7 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
 import {
-  Search,
   ArrowRight,
   Home as HomeIcon,
   Tag,
@@ -14,19 +10,14 @@ import {
   Scale,
   FileText,
   MessageSquare,
-  Shield,
-  ShieldCheck,
-  CheckCircle2,
-  AlertTriangle,
-  Share2,
-  MapPin,
-  Check,
   ExternalLink,
-  Layers,
-  Sparkles,
+  Share2,
   ChevronRight,
-  FileCheck2,
-  HelpCircle,
+  Check,
+  AlertTriangle,
+  Search,
+  Shield,
+  CheckCircle2,
 } from "lucide-react"
 
 import AppHeader from "@/components/app-header"
@@ -34,18 +25,7 @@ import AppFooter from "@/components/app-footer"
 import { useAskProptham } from "@/components/ask-proptham-widget"
 
 export default function Home() {
-  const router = useRouter()
   const { openWidget } = useAskProptham()
-  const [searchQuery, setSearchQuery] = useState("")
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/buy?q=${encodeURIComponent(searchQuery.trim())}`)
-    } else {
-      router.push("/buy")
-    }
-  }
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
@@ -76,61 +56,8 @@ export default function Home() {
               </div>
 
               <h1 className="font-anton text-5xl sm:text-7xl lg:text-8xl tracking-wide uppercase leading-[0.95] text-white">
-                Know before<br />you commit.
+                FIND YOUR<br />DESTINED PROPERTY
               </h1>
-
-              <p className="text-slate-300 text-sm sm:text-base lg:text-lg max-w-xl leading-relaxed">
-                Proptham helps you research, analyse, compare and verify a property using evidence, context and intelligent analysis.
-              </p>
-
-              {/* Search Bar Pill Container */}
-              <form onSubmit={handleSearchSubmit} className="max-w-2xl pt-2">
-                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-2 pl-6 flex items-center justify-between shadow-2xl transition-all focus-within:border-teal-400 focus-within:bg-white/15">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="What do you want to understand? Property, project, locality or question..."
-                    className="w-full bg-transparent border-none outline-none text-xs sm:text-sm text-white placeholder:text-slate-400 font-medium pr-4"
-                  />
-                  <button
-                    type="submit"
-                    aria-label="Submit Search"
-                    className="w-10 h-10 rounded-full bg-stone-200 hover:bg-white text-slate-950 flex items-center justify-center shrink-0 transition-all cursor-pointer shadow-md"
-                  >
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </form>
-
-              {/* Suggested Questions (Try asking:) */}
-              <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
-                <span className="text-slate-400 font-medium mr-1">Try asking:</span>
-                <button
-                  onClick={() => setSearchQuery("Is this property fairly priced?")}
-                  className="bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 px-3.5 py-1.5 rounded-full transition-all text-[11px] font-medium"
-                >
-                  Is this property fairly priced?
-                </button>
-                <button
-                  onClick={() => setSearchQuery("What are the risks?")}
-                  className="bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 px-3.5 py-1.5 rounded-full transition-all text-[11px] font-medium"
-                >
-                  What are the risks?
-                </button>
-                <button
-                  onClick={() => setSearchQuery("Compare these two properties")}
-                  className="bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 px-3.5 py-1.5 rounded-full transition-all text-[11px] font-medium hidden sm:inline-block"
-                >
-                  Compare these two properties
-                </button>
-                <button
-                  onClick={() => setSearchQuery("Is OMR a good place to invest?")}
-                  className="bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 px-3.5 py-1.5 rounded-full transition-all text-[11px] font-medium hidden md:inline-block"
-                >
-                  Is OMR a good place to invest?
-                </button>
-              </div>
             </div>
           </div>
         </section>
