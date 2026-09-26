@@ -39,22 +39,18 @@ export default function Home() {
           {/* Hero Background Image with Gradient Overlay */}
           <div className="absolute inset-0 z-0">
             <img
-              src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop"
-              alt="Proptham Luxury Modern Architecture"
-              className="w-full h-full object-cover object-right opacity-40 lg:opacity-55"
+              src="/hero-night-villa.jpg"
+              alt="Proptham Luxury Modern Architecture at Night"
+              className="w-full h-full object-cover object-center brightness-95"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-transparent lg:w-[65%]" />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/40" />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/70 via-slate-950/30 to-transparent lg:w-[60%]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/40" />
           </div>
 
           <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 z-10 relative">
             
             {/* Left Content Column */}
             <div className="max-w-2xl lg:max-w-3xl space-y-6 pt-6">
-              <div className="text-teal-400 font-mono text-xs uppercase tracking-[0.25em] font-semibold">
-                PROPERTY INTELLIGENCE
-              </div>
-
               <h1 className="font-anton text-5xl sm:text-7xl lg:text-8xl tracking-wide uppercase leading-[0.95] text-white">
                 FIND YOUR<br />DESTINED PROPERTY
               </h1>
