@@ -15,6 +15,7 @@ import {
   FileText,
   MessageSquare,
   Shield,
+  ShieldCheck,
   CheckCircle2,
   AlertTriangle,
   Share2,
@@ -36,6 +37,13 @@ export default function Home() {
   const router = useRouter()
   const { openWidget } = useAskProptham()
   const [searchQuery, setSearchQuery] = useState("")
+  const [spotlightPos, setSpotlightPos] = useState({ x: 250, y: 180 })
+  const [isSpotlightHovered, setIsSpotlightHovered] = useState(false)
+
+  const handleSpotlightMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    setSpotlightPos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+  }
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -132,67 +140,250 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right Column: Floating Insight Cards on Hero */}
-            <div className="lg:col-span-5 relative hidden lg:block h-[480px]">
-              {/* Card 1: Price Context */}
-              <div className="absolute top-4 left-0 bg-slate-900/80 backdrop-blur-md border border-white/15 p-4 rounded-2xl shadow-2xl text-white w-56 space-y-1 transform hover:-translate-y-1 transition-transform">
-                <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
-                  <span>Price Context</span>
-                  <ExternalLink className="h-3 w-3 text-slate-400" />
-                </div>
-                <div className="text-2xl font-bold font-mono text-white">₹1.18 Cr</div>
-                <div className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
-                  Within market range
-                </div>
-              </div>
+            {/* Right Column: High-End Property Intelligence Cockpit Dashboard */}
+            <div
+              className="lg:col-span-5 relative hidden lg:block"
+              onMouseMove={handleSpotlightMove}
+              onMouseEnter={() => setIsSpotlightHovered(true)}
+              onMouseLeave={() => setIsSpotlightHovered(false)}
+            >
+              {/* Outer Ambient Glow / Aura (React Bits inspired) */}
+              <div className="absolute -inset-1.5 bg-gradient-to-tr from-teal-500/20 via-emerald-500/10 to-teal-400/20 rounded-[32px] blur-xl opacity-70 pointer-events-none transition-opacity duration-500" />
 
-              {/* Card 2: Location Score */}
-              <div className="absolute top-32 left-0 bg-slate-900/80 backdrop-blur-md border border-white/15 p-5 rounded-2xl shadow-2xl text-white w-64 space-y-3 transform hover:-translate-y-1 transition-transform">
-                <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
-                  <span>Location Score</span>
-                  <ExternalLink className="h-3 w-3 text-slate-400" />
-                </div>
-                <div className="text-3xl font-bold font-mono text-teal-400">8.4 <span className="text-xs text-slate-400 font-normal">/10</span></div>
+              {/* Main Dashboard Chassis */}
+              <div className="relative rounded-[28px] bg-slate-950/85 backdrop-blur-2xl border border-white/[0.12] p-5 sm:p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_30px_rgba(20,184,166,0.08)] overflow-hidden transition-all duration-300 hover:border-white/20">
                 
-                <div className="space-y-1.5 text-[11px]">
-                  <div className="flex justify-between text-slate-300"><span>Connectivity</span><span className="font-mono">9.1</span></div>
-                  <div className="w-full bg-slate-800 rounded-full h-1"><div className="bg-teal-400 h-1 rounded-full" style={{ width: "91%" }} /></div>
+                {/* React Bits Interactive Spotlight Overlay */}
+                <div
+                  className="pointer-events-none absolute -inset-px rounded-[28px] opacity-0 transition-opacity duration-300"
+                  style={{
+                    opacity: isSpotlightHovered ? 1 : 0,
+                    background: `radial-gradient(420px circle at ${spotlightPos.x}px ${spotlightPos.y}px, rgba(45, 212, 191, 0.12), transparent 70%)`,
+                  }}
+                />
 
-                  <div className="flex justify-between text-slate-300"><span>Infrastructure</span><span className="font-mono">8.6</span></div>
-                  <div className="w-full bg-slate-800 rounded-full h-1"><div className="bg-teal-400 h-1 rounded-full" style={{ width: "86%" }} /></div>
+                {/* Top Specular Hairline Accent */}
+                <div className="absolute top-0 left-10 right-10 h-px bg-gradient-to-r from-transparent via-teal-400/50 to-transparent" />
 
-                  <div className="flex justify-between text-slate-300"><span>Liveability</span><span className="font-mono">8.3</span></div>
-                  <div className="w-full bg-slate-800 rounded-full h-1"><div className="bg-teal-400 h-1 rounded-full" style={{ width: "83%" }} /></div>
+                {/* Console Header Bar */}
+                <div className="flex items-center justify-between pb-4 mb-4 border-b border-white/[0.08] relative z-10">
+                  <div className="flex items-center gap-2.5">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-400" />
+                    </span>
+                    <div>
+                      <div className="font-mono text-[10px] tracking-[0.2em] text-teal-300 uppercase font-semibold">
+                        Live Property Intelligence
+                      </div>
+                      <div className="text-xs font-medium text-slate-300 flex items-center gap-1.5">
+                        <span>42 Greenway Ave</span>
+                        <span className="text-slate-500">•</span>
+                        <span className="text-slate-400 text-[11px]">OMR IT Corridor</span>
+                      </div>
+                    </div>
+                  </div>
 
-                  <div className="flex justify-between text-slate-300"><span>Growth Potential</span><span className="font-mono">8.1</span></div>
-                  <div className="w-full bg-slate-800 rounded-full h-1"><div className="bg-teal-400 h-1 rounded-full" style={{ width: "81%" }} /></div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/25 text-teal-300 text-[10px] font-mono font-medium tracking-wide">
+                    <ShieldCheck className="h-3 w-3 text-teal-400" />
+                    <span>LandCheck Verified</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Card 3: Key Insights */}
-              <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md border border-white/15 p-4 rounded-2xl shadow-2xl text-white w-60 space-y-2 transform hover:-translate-y-1 transition-transform">
-                <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
-                  <span>Key Insights</span>
-                  <ExternalLink className="h-3 w-3 text-slate-400" />
-                </div>
-                <ul className="space-y-1.5 text-xs text-slate-200">
-                  <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Good connectivity</li>
-                  <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Upcoming metro line</li>
-                  <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Low flood risk</li>
-                  <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Strong appreciation potential</li>
-                </ul>
-              </div>
+                {/* 4 Core Intelligence Modules Grid */}
+                <div className="grid grid-cols-2 gap-3.5 relative z-10">
+                  
+                  {/* 1. PRICE CONTEXT MODULE */}
+                  <div className="group/item relative bg-slate-900/60 hover:bg-slate-900/90 rounded-2xl border border-white/[0.08] hover:border-teal-500/35 p-4 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-inner">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+                          Price Context
+                        </span>
+                        <ExternalLink className="h-3 w-3 text-slate-500 group-hover/item:text-teal-400 transition-colors" />
+                      </div>
 
-              {/* Card 4: Risk Check */}
-              <div className="absolute top-52 right-4 bg-slate-900/80 backdrop-blur-md border border-white/15 p-4 rounded-2xl shadow-2xl text-white w-60 space-y-2 transform hover:-translate-y-1 transition-transform">
-                <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
-                  <span>Risk Check</span>
-                  <ExternalLink className="h-3 w-3 text-slate-400" />
+                      <div className="text-2xl font-bold font-mono text-white tracking-tight pt-0.5">
+                        ₹1.18 Cr
+                      </div>
+
+                      <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                        Within market range
+                      </div>
+                    </div>
+
+                    {/* Micro Market Range Corridor Bar */}
+                    <div className="pt-3 space-y-1 border-t border-white/[0.04] mt-2">
+                      <div className="flex justify-between text-[9px] font-mono text-slate-400">
+                        <span>₹1.12 Cr</span>
+                        <span className="text-teal-300 font-semibold">Fair Value</span>
+                        <span>₹1.24 Cr</span>
+                      </div>
+                      <div className="h-1 w-full bg-slate-800 rounded-full overflow-hidden relative">
+                        <div className="h-full bg-gradient-to-r from-teal-500 to-emerald-400 rounded-full" style={{ width: "55%" }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. RISK CHECK MODULE */}
+                  <div className="group/item relative bg-slate-900/60 hover:bg-slate-900/90 rounded-2xl border border-white/[0.08] hover:border-rose-500/35 p-4 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-inner">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+                          Risk Check
+                        </span>
+                        <AlertTriangle className="h-3 w-3 text-rose-400" />
+                      </div>
+
+                      <div className="p-2 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-2">
+                        <span className="relative flex h-2 w-2 mt-1 shrink-0">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
+                        </span>
+                        <span className="text-[11px] font-semibold text-rose-300 leading-snug">
+                          2 areas require further verification
+                        </span>
+                      </div>
+
+                      <div className="space-y-1 pt-0.5 text-[10px] font-medium text-slate-300">
+                        <div className="flex items-center gap-1.5 text-slate-400">
+                          <span className="text-amber-400">⚠</span> Title verification in progress
+                        </div>
+                        <div className="flex items-center gap-1.5 text-slate-400">
+                          <span className="text-amber-400">⚠</span> Encumbrance scan pending
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 flex justify-between items-center text-[9px] font-mono text-slate-500 border-t border-white/[0.04]">
+                      <span>LandCheck Audit</span>
+                      <span className="text-amber-300/80 font-medium">In Progress</span>
+                    </div>
+                  </div>
+
+                  {/* 3. LOCATION SCORE MODULE */}
+                  <div className="group/item relative bg-slate-900/60 hover:bg-slate-900/90 rounded-2xl border border-white/[0.08] hover:border-teal-500/35 p-4 transition-all duration-300 space-y-2.5 overflow-hidden shadow-inner">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+                        Location Score
+                      </span>
+                      <ExternalLink className="h-3 w-3 text-slate-500 group-hover/item:text-teal-400 transition-colors" />
+                    </div>
+
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-3xl font-bold font-mono text-teal-400 tracking-tight">8.4</span>
+                      <span className="text-xs text-slate-500 font-mono font-medium">/10</span>
+                      <span className="ml-auto text-[9px] font-mono font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+                        Tier-1 Growth
+                      </span>
+                    </div>
+
+                    {/* 4 Metrics with animated glowing progress bars */}
+                    <div className="space-y-1.5 text-[10px]">
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between text-slate-300">
+                          <span className="text-slate-400">Connectivity</span>
+                          <span className="font-mono text-slate-200 font-medium">9.1</span>
+                        </div>
+                        <div className="w-full bg-slate-800/80 rounded-full h-1 overflow-hidden">
+                          <div className="bg-gradient-to-r from-teal-500 to-teal-400 h-1 rounded-full shadow-[0_0_8px_rgba(45,212,191,0.5)]" style={{ width: "91%" }} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between text-slate-300">
+                          <span className="text-slate-400">Infrastructure</span>
+                          <span className="font-mono text-slate-200 font-medium">8.6</span>
+                        </div>
+                        <div className="w-full bg-slate-800/80 rounded-full h-1 overflow-hidden">
+                          <div className="bg-gradient-to-r from-teal-500 to-teal-400 h-1 rounded-full shadow-[0_0_8px_rgba(45,212,191,0.5)]" style={{ width: "86%" }} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between text-slate-300">
+                          <span className="text-slate-400">Liveability</span>
+                          <span className="font-mono text-slate-200 font-medium">8.3</span>
+                        </div>
+                        <div className="w-full bg-slate-800/80 rounded-full h-1 overflow-hidden">
+                          <div className="bg-gradient-to-r from-teal-500 to-teal-400 h-1 rounded-full shadow-[0_0_8px_rgba(45,212,191,0.5)]" style={{ width: "83%" }} />
+                        </div>
+                      </div>
+
+                      <div className="space-y-0.5">
+                        <div className="flex justify-between text-slate-300">
+                          <span className="text-slate-400">Growth Potential</span>
+                          <span className="font-mono text-slate-200 font-medium">8.1</span>
+                        </div>
+                        <div className="w-full bg-slate-800/80 rounded-full h-1 overflow-hidden">
+                          <div className="bg-gradient-to-r from-teal-500 to-teal-400 h-1 rounded-full shadow-[0_0_8px_rgba(45,212,191,0.5)]" style={{ width: "81%" }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. KEY INSIGHTS MODULE */}
+                  <div className="group/item relative bg-slate-900/60 hover:bg-slate-900/90 rounded-2xl border border-white/[0.08] hover:border-teal-500/35 p-4 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-inner">
+                    <div className="space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-slate-400">
+                          Key Insights
+                        </span>
+                        <ExternalLink className="h-3 w-3 text-slate-500 group-hover/item:text-teal-400 transition-colors" />
+                      </div>
+
+                      <ul className="space-y-1.5 text-[11px] text-slate-200">
+                        <li className="flex items-start gap-1.5">
+                          <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+                            <Check className="h-2 w-2 stroke-[2.5]" />
+                          </span>
+                          <span className="leading-snug">Good connectivity</span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+                            <Check className="h-2 w-2 stroke-[2.5]" />
+                          </span>
+                          <span className="leading-snug">Upcoming metro line</span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+                            <Check className="h-2 w-2 stroke-[2.5]" />
+                          </span>
+                          <span className="leading-snug">Low flood risk</span>
+                        </li>
+                        <li className="flex items-start gap-1.5">
+                          <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+                            <Check className="h-2 w-2 stroke-[2.5]" />
+                          </span>
+                          <span className="leading-snug">Strong appreciation potential</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div className="pt-2 border-t border-white/[0.04] flex items-center justify-between text-[9px] font-mono text-slate-500">
+                      <span>Signal Confidence</span>
+                      <span className="text-teal-400 font-semibold">96.4% High</span>
+                    </div>
+                  </div>
+
                 </div>
-                <div className="flex items-center gap-2 text-rose-400 text-xs font-semibold">
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
-                  <span>2 areas require further verification</span>
+
+                {/* Console Footer Bar */}
+                <div className="mt-4 pt-3 border-t border-white/[0.08] flex items-center justify-between text-[10px] font-mono text-slate-400 relative z-10">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
+                    Verified 14 Sep 2026 • 100% Evidence-Backed
+                  </span>
+                  <Link
+                    href="/property-report"
+                    className="text-teal-300 hover:text-teal-200 transition-colors inline-flex items-center gap-1 font-semibold group/link"
+                  >
+                    <span>Full Audit</span>
+                    <ChevronRight className="h-3 w-3 group-hover/link:translate-x-0.5 transition-transform" />
+                  </Link>
                 </div>
+
               </div>
             </div>
 
