@@ -1,458 +1,802 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import {
   Search,
-  MapPin,
+  ArrowRight,
   Home as HomeIcon,
-  Briefcase,
-  Bed,
-  Bath,
-  Maximize2,
-  SlidersHorizontal,
-  ChevronDown,
-  ArrowUpDown,
-  Heart,
-  ShieldCheck,
+  Tag,
+  TrendingUp,
+  Building2,
+  Scale,
+  FileText,
+  MessageSquare,
+  Shield,
+  CheckCircle2,
+  AlertTriangle,
+  Share2,
+  MapPin,
+  Check,
+  ExternalLink,
+  Layers,
+  Sparkles,
   ChevronRight,
-  X
+  FileCheck2,
+  HelpCircle,
 } from "lucide-react"
 
 import AppHeader from "@/components/app-header"
 import AppFooter from "@/components/app-footer"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { properties, Property } from "@/data/properties"
-import { trackEvent } from "@/lib/analytics"
+import { useAskProptham } from "@/components/ask-proptham-widget"
 
 export default function Home() {
   const router = useRouter()
-  const [heroImgError, setHeroImgError] = useState(false)
+  const { openWidget } = useAskProptham()
+  const [searchQuery, setSearchQuery] = useState("")
 
-  // Hero Search State
-  const [searchLocation, setSearchLocation] = useState("")
-  const [searchType, setSearchType] = useState("All Types")
-  const [searchBudget, setSearchBudget] = useState("Any Budget")
-
-  // Top Picks Interactive Filter State
-  const [selectedCity, setSelectedCity] = useState("All")
-  const [selectedType, setSelectedType] = useState("All")
-  const [selectedStatus, setSelectedStatus] = useState("All")
-  const [selectedBeds, setSelectedBeds] = useState<number | "All">("All")
-  const [sortBy, setSortBy] = useState<"recommended" | "price-asc" | "price-desc">("recommended")
-  const [favorites, setFavorites] = useState<string[]>([])
-
-  const toggleFavorite = (id: string, e: React.MouseEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    e.stopPropagation()
-    setFavorites((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]))
+    if (searchQuery.trim()) {
+      router.push(`/buy?q=${encodeURIComponent(searchQuery.trim())}`)
+    } else {
+      router.push("/buy")
+    }
   }
-
-  // Hero Search Submission
-  const handleHeroSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    trackEvent("search_submitted", { location: searchLocation, type: searchType, budget: searchBudget })
-    
-    const params = new URLSearchParams()
-    if (searchLocation.trim()) params.set("q", searchLocation.trim())
-    if (searchType !== "All Types") params.set("type", searchType)
-    if (searchBudget !== "Any Budget") params.set("budget", searchBudget)
-    
-    router.push(`/properties?${params.toString()}`)
-  }
-
-  // Filtered Properties for Top Picks Section
-  const filteredProperties = useMemo(() => {
-    return properties
-      .filter((p) => {
-        if (selectedCity !== "All" && p.city !== selectedCity && p.locality !== selectedCity) {
-          return false
-        }
-        if (selectedType !== "All" && p.type !== selectedType) {
-          return false
-        }
-        if (selectedStatus !== "All" && p.status !== selectedStatus) {
-          return false
-        }
-        if (selectedBeds !== "All" && p.beds < Number(selectedBeds)) {
-          return false
-        }
-        if (searchBudget === "under-1cr" && (p.price > 10000000 || p.status === "For Rent")) {
-          return false
-        }
-        if (searchBudget === "1cr-2cr" && (p.price < 10000000 || p.price > 20000000 || p.status === "For Rent")) {
-          return false
-        }
-        if (searchBudget === "above-2cr" && (p.price < 20000000 || p.status === "For Rent")) {
-          return false
-        }
-        if (searchBudget === "rent" && p.status !== "For Rent") {
-          return false
-        }
-        return true
-      })
-      .sort((a, b) => {
-        if (sortBy === "price-asc") return a.price - b.price
-        if (sortBy === "price-desc") return b.price - a.price
-        return 0
-      })
-  }, [selectedCity, selectedType, selectedStatus, selectedBeds, sortBy])
 
   return (
-    <div className="flex flex-col min-h-screen bg-white font-sans text-slate-900">
-      
-      {/* HEADER OVERLAY */}
+    <div className="min-h-screen bg-white text-slate-900 font-sans flex flex-col selection:bg-teal-500 selection:text-white">
       <AppHeader transparent={true} />
 
-      {/* ==================================================
-          SECTION 01: CINEMATIC PROPERTY SEARCH HERO (~75vh)
-          REPRODUCED EXACTLY FROM THE REFERENCE IMAGE
-      ================================================== */}
-      <section className="relative w-full h-[75vh] min-h-[580px] max-h-[760px] flex flex-col justify-center overflow-hidden bg-slate-950 text-white">
-        {/* Background Image (Luxury Mansion on the Right, Dark Sky on the Left) */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src={heroImgError ? "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop" : "/hero-bg.jpg"}
-            onError={() => setHeroImgError(true)}
-            alt=""
-            aria-hidden="true"
-            className="w-full h-full object-cover object-right sm:object-center scale-105"
-          />
-          {/* Subtle Dark Left Gradient to create Negative Space for Headline & Search */}
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/60 to-transparent" />
-        </div>
+      <main className="flex-1">
+        {/* ===================================================
+            SECTION 1: DARK CINEMATIC HERO
+            =================================================== */}
+        <section className="relative min-h-[85vh] bg-slate-950 text-white flex items-center pt-24 pb-16 overflow-hidden">
+          {/* Hero Background Image with Gradient Overlay */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=2075&auto=format&fit=crop"
+              alt="Proptham Luxury Modern Architecture"
+              className="w-full h-full object-cover object-right opacity-40 lg:opacity-55"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/90 to-transparent lg:w-[65%]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/40" />
+          </div>
 
-        {/* Hero Left Content Container */}
-        <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 pt-14 z-10">
-          <div className="max-w-4xl space-y-6 text-left">
+          <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-8 lg:px-12 z-10 relative grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            {/* MAIN TITLE (Line 1: FIND YOUR, Line 2: DESTINED PROPERTY) */}
-            <h1 className="font-anton text-5xl sm:text-7xl lg:text-8xl tracking-wider text-white uppercase leading-[0.95] drop-shadow-xl text-left max-w-4xl">
-              FIND YOUR<br />
-              <span className="text-teal-400">DESTINED</span> PROPERTY
-            </h1>
+            {/* Left Content Column */}
+            <div className="lg:col-span-7 space-y-6 pt-6">
+              <div className="text-teal-400 font-mono text-xs uppercase tracking-[0.25em] font-semibold">
+                PROPERTY INTELLIGENCE
+              </div>
 
-            {/* FLOATING WHITE SEARCH CONTAINER (Pill Shape) */}
-            <form
-              onSubmit={handleHeroSearch}
-              className="bg-white rounded-full p-2.5 pl-6 shadow-2xl border border-white/20 max-w-3xl w-full text-slate-900 flex flex-wrap lg:flex-nowrap items-center justify-between gap-3"
-            >
-              {/* Field 1: Location */}
-              <div className="flex items-center gap-3 flex-1 min-w-[180px]">
-                <MapPin className="h-4.5 w-4.5 text-[#00a896] shrink-0" />
-                <div className="flex-1">
-                  <label className="text-[11px] font-bold text-slate-800 uppercase tracking-wider block leading-tight">
-                    Location
-                  </label>
-                  <Input
+              <h1 className="font-anton text-5xl sm:text-7xl lg:text-8xl tracking-wide uppercase leading-[0.95] text-white">
+                Know before<br />you commit.
+              </h1>
+
+              <p className="text-slate-300 text-sm sm:text-base lg:text-lg max-w-xl leading-relaxed">
+                Proptham helps you research, analyse, compare and verify a property using evidence, context and intelligent analysis.
+              </p>
+
+              {/* Search Bar Pill Container */}
+              <form onSubmit={handleSearchSubmit} className="max-w-2xl pt-2">
+                <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-full p-2 pl-6 flex items-center justify-between shadow-2xl transition-all focus-within:border-teal-400 focus-within:bg-white/15">
+                  <input
                     type="text"
-                    placeholder="Where do you want to live?"
-                    value={searchLocation}
-                    onChange={(e) => setSearchLocation(e.target.value)}
-                    className="border-0 p-0 h-5 text-xs text-slate-500 placeholder:text-slate-400 focus-visible:ring-0 bg-transparent font-normal"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="What do you want to understand? Property, project, locality or question..."
+                    className="w-full bg-transparent border-none outline-none text-xs sm:text-sm text-white placeholder:text-slate-400 font-medium pr-4"
                   />
-                </div>
-              </div>
-
-              {/* Vertical Divider */}
-              <div className="h-8 w-px bg-slate-200 hidden lg:block shrink-0" />
-
-              {/* Field 2: Property Type */}
-              <div className="flex items-center gap-3 flex-1 min-w-[170px]">
-                <HomeIcon className="h-4.5 w-4.5 text-[#00a896] shrink-0" />
-                <div className="flex-1">
-                  <label className="text-[11px] font-bold text-slate-800 uppercase tracking-wider block leading-tight">
-                    Property Type
-                  </label>
-                  <select
-                    value={searchType}
-                    onChange={(e) => setSearchType(e.target.value)}
-                    className="w-full bg-transparent text-xs text-slate-500 border-0 focus:outline-none cursor-pointer p-0 h-5 font-normal"
+                  <button
+                    type="submit"
+                    aria-label="Submit Search"
+                    className="w-10 h-10 rounded-full bg-stone-200 hover:bg-white text-slate-950 flex items-center justify-center shrink-0 transition-all cursor-pointer shadow-md"
                   >
-                    <option value="All Types">Apartment, Villa, Plot...</option>
-                    <option value="Apartment">Apartment</option>
-                    <option value="Villa">Villa</option>
-                    <option value="Plot">Plot</option>
-                    <option value="Penthouse">Penthouse</option>
-                    <option value="House">House</option>
-                  </select>
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </form>
+
+              {/* Suggested Questions (Try asking:) */}
+              <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
+                <span className="text-slate-400 font-medium mr-1">Try asking:</span>
+                <button
+                  onClick={() => setSearchQuery("Is this property fairly priced?")}
+                  className="bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 px-3.5 py-1.5 rounded-full transition-all text-[11px] font-medium"
+                >
+                  Is this property fairly priced?
+                </button>
+                <button
+                  onClick={() => setSearchQuery("What are the risks?")}
+                  className="bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 px-3.5 py-1.5 rounded-full transition-all text-[11px] font-medium"
+                >
+                  What are the risks?
+                </button>
+                <button
+                  onClick={() => setSearchQuery("Compare these two properties")}
+                  className="bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 px-3.5 py-1.5 rounded-full transition-all text-[11px] font-medium hidden sm:inline-block"
+                >
+                  Compare these two properties
+                </button>
+                <button
+                  onClick={() => setSearchQuery("Is OMR a good place to invest?")}
+                  className="bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 px-3.5 py-1.5 rounded-full transition-all text-[11px] font-medium hidden md:inline-block"
+                >
+                  Is OMR a good place to invest?
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column: Floating Insight Cards on Hero */}
+            <div className="lg:col-span-5 relative hidden lg:block h-[480px]">
+              {/* Card 1: Price Context */}
+              <div className="absolute top-4 left-0 bg-slate-900/80 backdrop-blur-md border border-white/15 p-4 rounded-2xl shadow-2xl text-white w-56 space-y-1 transform hover:-translate-y-1 transition-transform">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                  <span>Price Context</span>
+                  <ExternalLink className="h-3 w-3 text-slate-400" />
+                </div>
+                <div className="text-2xl font-bold font-mono text-white">₹1.18 Cr</div>
+                <div className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
+                  Within market range
                 </div>
               </div>
 
-              {/* Vertical Divider */}
-              <div className="h-8 w-px bg-slate-200 hidden lg:block shrink-0" />
+              {/* Card 2: Location Score */}
+              <div className="absolute top-32 left-0 bg-slate-900/80 backdrop-blur-md border border-white/15 p-5 rounded-2xl shadow-2xl text-white w-64 space-y-3 transform hover:-translate-y-1 transition-transform">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                  <span>Location Score</span>
+                  <ExternalLink className="h-3 w-3 text-slate-400" />
+                </div>
+                <div className="text-3xl font-bold font-mono text-teal-400">8.4 <span className="text-xs text-slate-400 font-normal">/10</span></div>
+                
+                <div className="space-y-1.5 text-[11px]">
+                  <div className="flex justify-between text-slate-300"><span>Connectivity</span><span className="font-mono">9.1</span></div>
+                  <div className="w-full bg-slate-800 rounded-full h-1"><div className="bg-teal-400 h-1 rounded-full" style={{ width: "91%" }} /></div>
 
-              {/* Field 3: Budget */}
-              <div className="flex items-center gap-3 flex-1 min-w-[140px]">
-                <Briefcase className="h-4.5 w-4.5 text-[#00a896] shrink-0" />
-                <div className="flex-1">
-                  <label className="text-[11px] font-bold text-slate-800 uppercase tracking-wider block leading-tight">
-                    Budget
-                  </label>
-                  <select
-                    value={searchBudget}
-                    onChange={(e) => setSearchBudget(e.target.value)}
-                    className="w-full bg-transparent text-xs text-slate-500 border-0 focus:outline-none cursor-pointer p-0 h-5 font-normal"
-                  >
-                    <option value="Any Budget">Budget</option>
-                    <option value="under-1cr">Under ₹1 Crore</option>
-                    <option value="1cr-2cr">₹1 Cr – ₹2 Cr</option>
-                    <option value="above-2cr">Above ₹2 Cr</option>
-                    <option value="rent">For Rent (&lt; ₹50k)</option>
-                  </select>
+                  <div className="flex justify-between text-slate-300"><span>Infrastructure</span><span className="font-mono">8.6</span></div>
+                  <div className="w-full bg-slate-800 rounded-full h-1"><div className="bg-teal-400 h-1 rounded-full" style={{ width: "86%" }} /></div>
+
+                  <div className="flex justify-between text-slate-300"><span>Liveability</span><span className="font-mono">8.3</span></div>
+                  <div className="w-full bg-slate-800 rounded-full h-1"><div className="bg-teal-400 h-1 rounded-full" style={{ width: "83%" }} /></div>
+
+                  <div className="flex justify-between text-slate-300"><span>Growth Potential</span><span className="font-mono">8.1</span></div>
+                  <div className="w-full bg-slate-800 rounded-full h-1"><div className="bg-teal-400 h-1 rounded-full" style={{ width: "81%" }} /></div>
                 </div>
               </div>
 
-              {/* Search Submit Button (Deep Teal Pill) */}
-              <Button
-                type="submit"
-                size="lg"
-                className="bg-[#00a896] hover:bg-teal-600 text-white font-semibold text-sm rounded-full px-7 h-12 shadow-md flex items-center justify-center gap-2 shrink-0 border-0 cursor-pointer"
-              >
-                <Search className="h-4 w-4" /> Search
-              </Button>
-            </form>
+              {/* Card 3: Key Insights */}
+              <div className="absolute top-4 right-4 bg-slate-900/80 backdrop-blur-md border border-white/15 p-4 rounded-2xl shadow-2xl text-white w-60 space-y-2 transform hover:-translate-y-1 transition-transform">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                  <span>Key Insights</span>
+                  <ExternalLink className="h-3 w-3 text-slate-400" />
+                </div>
+                <ul className="space-y-1.5 text-xs text-slate-200">
+                  <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Good connectivity</li>
+                  <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Upcoming metro line</li>
+                  <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Low flood risk</li>
+                  <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Strong appreciation potential</li>
+                </ul>
+              </div>
+
+              {/* Card 4: Risk Check */}
+              <div className="absolute top-52 right-4 bg-slate-900/80 backdrop-blur-md border border-white/15 p-4 rounded-2xl shadow-2xl text-white w-60 space-y-2 transform hover:-translate-y-1 transition-transform">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 font-semibold uppercase tracking-wider">
+                  <span>Risk Check</span>
+                  <ExternalLink className="h-3 w-3 text-slate-400" />
+                </div>
+                <div className="flex items-center gap-2 text-rose-400 text-xs font-semibold">
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-rose-400" />
+                  <span>2 areas require further verification</span>
+                </div>
+              </div>
+            </div>
+
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ==================================================
-          SECTION 02: TOP PICKS / PROPERTY DISCOVERY (White)
-          EXACT REPRODUCTION OF REFERENCE BAR & CARDS
-      ================================================== */}
-      <section className="w-full py-10 md:py-14 bg-white text-slate-900 border-b">
-        <div className="w-full max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-12 space-y-6">
-          
-          {/* Section Title */}
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-950 tracking-tight text-left">
-            Top Picks
-          </h2>
+        {/* ===================================================
+            SECTION 2: "WHAT ARE YOU TRYING TO DECIDE?"
+            =================================================== */}
+        <section className="py-16 px-6 sm:px-8 lg:px-12 bg-white border-b border-slate-100">
+          <div className="max-w-[1600px] mx-auto space-y-8">
+            <div className="text-center space-y-2">
+              <div className="text-xs font-semibold text-slate-400 uppercase tracking-[0.2em]">
+                FOR EVERY PROPERTY DECISION
+              </div>
+              <h2 className="font-anton text-3xl sm:text-4xl text-slate-900 tracking-wide uppercase">
+                What are you trying to decide?
+              </h2>
+              <p className="text-slate-500 text-sm max-w-md mx-auto">
+                Get relevant insights based on your goal.
+              </p>
+            </div>
 
-          {/* Filter Bar Controls (Rounded Pill Chips) */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-            
-            {/* Left Filters */}
-            <div className="flex flex-wrap items-center gap-2.5">
+            {/* 5 Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+              {[
+                { title: "Buyer", href: "/buy", icon: HomeIcon, desc: "Understand a property before buying" },
+                { title: "Seller", href: "/seller-intelligence", icon: Tag, desc: "Understand your property's market position" },
+                { title: "Investor", href: "/research", icon: TrendingUp, desc: "Research value, locality and opportunity" },
+                { title: "Commercial", href: "/commercial", icon: Building2, desc: "Evaluate commercial property, rent and market context" },
+                { title: "Compare", href: "/compare", icon: Scale, desc: "Understand the differences between properties" },
+              ].map((item) => {
+                const Icon = item.icon
+                return (
+                  <Link
+                    key={item.title}
+                    href={item.href}
+                    className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs hover:shadow-md hover:border-slate-300 transition-all group flex flex-col justify-between h-40"
+                  >
+                    <div>
+                      <div className="w-8 h-8 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 group-hover:bg-teal-50 group-hover:text-teal-700 transition-colors mb-3">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="flex items-center justify-between font-bold text-slate-900 text-sm">
+                        <span>{item.title}</span>
+                        <ExternalLink className="h-3.5 w-3.5 text-slate-400 group-hover:text-teal-600 transition-colors" />
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1 leading-snug">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================
+            SECTION 3: "THREE WAYS TO USE PROPTHAM"
+            =================================================== */}
+        <section className="py-16 px-6 sm:px-8 lg:px-12 bg-white border-b border-slate-100">
+          <div className="max-w-[1600px] mx-auto space-y-8">
+            <div className="text-center space-y-2">
+              <div className="text-xs font-semibold text-slate-400 uppercase tracking-[0.2em]">
+                GET STARTED
+              </div>
+              <h2 className="font-anton text-3xl sm:text-4xl text-slate-900 tracking-wide uppercase">
+                Three ways to use Proptham
+              </h2>
+              <p className="text-slate-500 text-sm max-w-md mx-auto">
+                Different questions. One intelligence layer.
+              </p>
+            </div>
+
+            {/* 3 Showcase Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
-              {/* Location Pill */}
-              <div className="relative">
-                <select
-                  value={selectedCity}
-                  onChange={(e) => setSelectedCity(e.target.value)}
-                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
-                >
-                  <option value="Chennai">Chennai</option>
-                  <option value="OMR">OMR</option>
-                  <option value="Velachery">Velachery</option>
-                  <option value="Sholinganallur">Sholinganallur</option>
-                  <option value="Bangalore">Bangalore</option>
-                  <option value="Whitefield">Whitefield</option>
-                  <option value="Hyderabad">Hyderabad</option>
-                  <option value="Pune">Pune</option>
-                  <option value="Mumbai">Mumbai</option>
-                  <option value="All">All Locations</option>
-                </select>
-                <MapPin className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              {/* Card 1: Analyse a Property */}
+              <div className="bg-slate-50 rounded-3xl border border-slate-200 p-8 flex flex-col justify-between relative overflow-hidden group shadow-xs hover:shadow-md transition-all h-[280px]">
+                <div className="relative z-10 space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-slate-200 flex items-center justify-center text-slate-800">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-slate-900">Analyse a Property</h3>
+                    <ExternalLink className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed max-w-xs">
+                    Understand price, location, risk, suitability and full context.
+                  </p>
+                </div>
+
+                <div className="relative z-10 pt-4">
+                  <Link
+                    href="/property-analysis"
+                    className="bg-slate-950 text-white hover:bg-slate-800 text-xs font-semibold px-4 py-2.5 rounded-full inline-flex items-center gap-2 transition-colors"
+                  >
+                    Analyse Property <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+
+                {/* Decorative house crop graphic */}
+                <div className="absolute -bottom-6 -right-6 w-44 h-44 opacity-20 pointer-events-none transition-opacity group-hover:opacity-30">
+                  <img src="https://images.unsplash.com/photo-1600585153490-76fb20a32601?q=80&w=600&auto=format&fit=crop" alt="Architecture" className="w-full h-full object-cover rounded-2xl" />
+                </div>
               </div>
 
-              {/* Property Type Filter Pill */}
-              <div className="relative">
-                <select
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
-                >
-                  <option value="All">Property Type</option>
-                  <option value="Apartment">Apartment</option>
-                  <option value="Villa">Villa</option>
-                  <option value="Plot">Plot</option>
-                  <option value="Penthouse">Penthouse</option>
-                  <option value="House">House</option>
-                </select>
-                <HomeIcon className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              {/* Card 2: Compare Properties */}
+              <div className="bg-slate-50 rounded-3xl border border-slate-200 p-8 flex flex-col justify-between relative overflow-hidden group shadow-xs hover:shadow-md transition-all h-[280px]">
+                <div className="relative z-10 space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-slate-200 flex items-center justify-center text-slate-800">
+                    <Scale className="h-5 w-5" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-slate-900">Compare Properties</h3>
+                    <ExternalLink className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed max-w-xs">
+                    Compare the same decision dimensions side by side.
+                  </p>
+                </div>
+
+                <div className="relative z-10 pt-4">
+                  <Link
+                    href="/compare"
+                    className="bg-white hover:bg-slate-100 text-slate-900 border border-slate-300 text-xs font-semibold px-4 py-2.5 rounded-full inline-flex items-center gap-2 transition-colors"
+                  >
+                    Compare Properties <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+
+                <div className="absolute -bottom-6 -right-6 w-44 h-44 opacity-20 pointer-events-none transition-opacity group-hover:opacity-30">
+                  <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=600&auto=format&fit=crop" alt="Architecture" className="w-full h-full object-cover rounded-2xl" />
+                </div>
               </div>
 
-              {/* Budget Filter Pill */}
-              <div className="relative">
-                <select
-                  value={searchBudget}
-                  onChange={(e) => setSearchBudget(e.target.value)}
-                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
-                >
-                  <option value="Any Budget">Budget</option>
-                  <option value="under-1cr">Under ₹1 Cr</option>
-                  <option value="1cr-2cr">₹1 Cr – ₹2 Cr</option>
-                  <option value="above-2cr">Above ₹2 Cr</option>
-                </select>
-                <Briefcase className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              {/* Card 3: Ask Proptham */}
+              <div className="bg-slate-50 rounded-3xl border border-slate-200 p-8 flex flex-col justify-between relative overflow-hidden group shadow-xs hover:shadow-md transition-all h-[280px]">
+                <div className="relative z-10 space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-white shadow-xs border border-slate-200 flex items-center justify-center text-slate-800">
+                    <MessageSquare className="h-5 w-5" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-slate-900">Ask Proptham</h3>
+                    <ExternalLink className="h-4 w-4 text-slate-400" />
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed max-w-xs">
+                    Have a question? Get a direct answer with relevant next steps.
+                  </p>
+                </div>
+
+                <div className="relative z-10 pt-4">
+                  <button
+                    onClick={() => openWidget()}
+                    className="bg-slate-950 text-white hover:bg-slate-800 text-xs font-semibold px-4 py-2.5 rounded-full inline-flex items-center gap-2 transition-colors cursor-pointer"
+                  >
+                    Ask Proptham <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                <div className="absolute -bottom-6 -right-6 w-44 h-44 opacity-20 pointer-events-none transition-opacity group-hover:opacity-30">
+                  <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=600&auto=format&fit=crop" alt="Architecture" className="w-full h-full object-cover rounded-2xl" />
+                </div>
               </div>
 
-              {/* Bedrooms Filter Pill */}
-              <div className="relative">
-                <select
-                  value={selectedBeds}
-                  onChange={(e) => setSelectedBeds(e.target.value === "All" ? "All" : Number(e.target.value))}
-                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
-                >
-                  <option value="All">Bedrooms</option>
-                  <option value="2">2+ Beds</option>
-                  <option value="3">3+ Beds</option>
-                  <option value="4">4+ Beds</option>
-                </select>
-                <Bed className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-
-              {/* Status Filter Pill */}
-              <div className="relative">
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
-                >
-                  <option value="All">Status</option>
-                  <option value="For Sale">For Sale</option>
-                  <option value="For Rent">For Rent</option>
-                </select>
-                <Badge className="bg-transparent text-slate-600 p-0 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none border-0">
-                  <ShieldCheck className="h-3.5 w-3.5 text-slate-600" />
-                </Badge>
-                <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              </div>
-
-              {/* More Filters Button */}
-              <button
-                onClick={() => setSelectedCity("All")}
-                className="bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold px-4 py-2.5 rounded-full border border-slate-200/60 transition-colors flex items-center gap-1.5"
-              >
-                <SlidersHorizontal className="h-3.5 w-3.5 text-slate-600" /> More Filters
-              </button>
-            </div>
-
-            {/* Right Sort By Dropdown */}
-            <div className="relative shrink-0">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="appearance-none bg-slate-100 hover:bg-slate-200/80 text-slate-900 text-xs font-semibold pl-9 pr-7 py-2.5 rounded-full border border-slate-200/60 focus:outline-none cursor-pointer"
-              >
-                <option value="recommended">Sort By</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-              </select>
-              <ArrowUpDown className="h-3.5 w-3.5 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <ChevronDown className="h-3.5 w-3.5 text-slate-600 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
           </div>
+        </section>
 
-          {/* PROPERTY CARDS GRID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5 pt-3">
-            {filteredProperties.map((p) => {
-              const isFav = favorites.includes(p.id)
-              return (
-                <div
-                  key={p.id}
-                  className="group bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-2xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+        {/* ===================================================
+            SECTION 4: PROPERTY INTELLIGENCE REPORT SHOWCASE
+            =================================================== */}
+        <section className="py-20 px-6 sm:px-8 lg:px-12 bg-white border-b border-slate-100">
+          <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Content */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="text-xs font-semibold text-slate-400 uppercase tracking-[0.2em]">
+                REAL INSIGHTS. NOT JUST LISTINGS.
+              </div>
+
+              <h2 className="font-anton text-4xl sm:text-5xl text-slate-900 tracking-wide uppercase leading-tight">
+                A complete property intelligence report.
+              </h2>
+
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                Go beyond surface information. Get a structured analysis with price context, location signals, risks and verified sources.
+              </p>
+
+              <div>
+                <Link
+                  href="/property-report"
+                  className="bg-slate-950 text-white hover:bg-slate-800 text-xs font-semibold px-6 py-3.5 rounded-full inline-flex items-center gap-2 transition-colors shadow-sm"
                 >
-                  <div>
-                    {/* Image Container */}
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
-                      <img
-                        src={p.image}
-                        alt={p.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      {/* Favorite Button */}
-                      <button
-                        onClick={(e) => toggleFavorite(p.id, e)}
-                        aria-label="Add to Favorites"
-                        className="absolute top-3 right-3 p-2 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md transition-colors"
-                      >
-                        <Heart className={`h-4 w-4 ${isFav ? "fill-rose-500 text-rose-500" : "text-white"}`} />
-                      </button>
+                  View sample analysis <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
 
-                      <div className="absolute top-3 left-3 flex gap-1.5">
-                        <Badge className="bg-slate-950/80 text-white text-[10px] font-semibold backdrop-blur-md">
-                          {p.status}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    {/* Property Meta Details */}
-                    <div className="p-4 space-y-2">
-                      <div className="flex items-center gap-1 text-[11px] text-slate-500">
-                        <MapPin className="h-3.5 w-3.5 text-[#00a896] shrink-0" />
-                        <span className="truncate">{p.location}</span>
-                      </div>
-
-                      <h3 className="font-bold text-slate-950 text-sm leading-snug group-hover:text-[#00a896] transition-colors line-clamp-1">
-                        {p.title}
-                      </h3>
-
-                      {/* Specs Row */}
-                      <div className="flex items-center gap-3 text-[11px] text-slate-600 pt-1 border-t border-slate-100">
-                        {p.beds > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Bed className="h-3.5 w-3.5 text-slate-400" />
-                            <span>{p.beds} Beds</span>
-                          </div>
-                        )}
-                        {p.baths > 0 && (
-                          <div className="flex items-center gap-1">
-                            <Bath className="h-3.5 w-3.5 text-slate-400" />
-                            <span>{p.baths} Baths</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-1">
-                          <Maximize2 className="h-3.5 w-3.5 text-slate-400" />
-                          <span>{p.sqft.toLocaleString()} sq.ft</span>
-                        </div>
-                      </div>
-
-                      {/* Price Row */}
-                      <div className="pt-2">
-                        <div className="text-lg font-extrabold text-slate-950 leading-tight">
-                          {p.status === "For Rent"
-                            ? `₹${p.price.toLocaleString()} / mo`
-                            : p.price >= 10000000
-                            ? `₹${(p.price / 10000000).toFixed(2)} Cr`
-                            : `₹${(p.price / 100000).toFixed(2)} Lakhs`}
-                        </div>
-                        {p.pricePerSqFt && (
-                          <div className="text-[11px] font-semibold text-[#00a896]">
-                            ₹{p.pricePerSqFt.toLocaleString()} / sq.ft
-                          </div>
-                        )}
-                      </div>
+            {/* Right Side: Realistic Report Dashboard Mockup */}
+            <div className="lg:col-span-7">
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl p-6 sm:p-8 space-y-6 text-slate-900">
+                
+                {/* Header Row */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b pb-4 gap-4">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=200&auto=format&fit=crop"
+                      alt="Property"
+                      className="w-12 h-12 rounded-xl object-cover"
+                    />
+                    <div>
+                      <div className="text-xs text-slate-400 font-mono uppercase">PROPERTY INTELLIGENCE</div>
+                      <h3 className="font-bold text-slate-900 text-base">42 Greenway Avenue</h3>
+                      <p className="text-xs text-slate-500">OMR, Chennai</p>
                     </div>
                   </div>
 
-                  {/* Card Action */}
-                  <div className="px-4 pb-4 pt-1">
-                    <Button
-                      variant="outline"
-                      className="w-full border-slate-200 text-slate-900 hover:bg-[#00a896] hover:text-white hover:border-[#00a896] font-semibold text-xs h-9 rounded-xl transition-colors flex items-center justify-center gap-1"
-                      asChild
-                    >
-                      <Link href={`/properties/${p.id}`}>
-                        View Property <ChevronRight className="h-3.5 w-3.5" />
-                      </Link>
-                    </Button>
+                  <div className="flex items-center gap-3">
+                    <div className="text-[11px] text-slate-400">
+                      Last updated <span className="font-semibold text-slate-700">14 Sep 2026</span>
+                    </div>
+                    <button className="px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-50 flex items-center gap-1.5">
+                      <Share2 className="h-3.5 w-3.5" /> Share
+                    </button>
                   </div>
                 </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
 
-      {/* FOOTER */}
+                {/* Top 3 Cards Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  
+                  {/* Price Analysis */}
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                      <span>Price Analysis</span>
+                      <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                    </div>
+                    <div className="text-xl font-bold font-mono text-slate-900">₹1.18 Cr</div>
+                    <div className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+                      <span>&bull; +4.1%</span> <span className="text-slate-500 font-normal">Observed market range ₹1.12M - ₹1.24M</span>
+                    </div>
+                    {/* Mini SVG Sparkline */}
+                    <svg className="w-full h-8 pt-1" viewBox="0 0 100 25" fill="none">
+                      <path d="M0 20 L25 15 L50 18 L75 8 L100 12" stroke="#0d9488" strokeWidth="2" fill="none" />
+                    </svg>
+                  </div>
+
+                  {/* Location Insights */}
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                      <span>Location Insights</span>
+                      <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                    </div>
+                    <ul className="space-y-1 text-[11px] text-slate-700 font-medium">
+                      <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-emerald-500 shrink-0" /> Strong connectivity</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-emerald-500 shrink-0" /> Upcoming metro line</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-emerald-500 shrink-0" /> Good social infrastructure</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-emerald-500 shrink-0" /> Low flood risk</li>
+                    </ul>
+                  </div>
+
+                  {/* Risk Summary */}
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                      <span>Risk Summary</span>
+                      <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+                    </div>
+                    <div className="p-2 rounded-xl bg-rose-50 border border-rose-100 flex items-center gap-2 text-rose-700 text-[11px] font-semibold">
+                      <AlertTriangle className="h-4 w-4 shrink-0 text-rose-500" />
+                      <span>2 areas require further verification</span>
+                    </div>
+                    <div className="space-y-1 text-[10px] text-slate-500">
+                      <div>Title verification pending</div>
+                      <div>Check encumbrance record</div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Bottom Row Details */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-xs">
+                  
+                  {/* Property Details */}
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-1.5">
+                    <div className="font-bold text-slate-900 text-xs">Property Details</div>
+                    <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-600">
+                      <div>3 BHK Apartment</div>
+                      <div>1,450 sq.ft</div>
+                      <div>North-Facing</div>
+                      <div>Built in 2022</div>
+                    </div>
+                  </div>
+
+                  {/* Market Context */}
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2">
+                    <div className="font-bold text-slate-900 text-xs">Market Context</div>
+                    <div className="text-sm font-bold font-mono text-slate-900">₹10,850 <span className="text-[10px] font-normal text-slate-500">/ sq.ft</span></div>
+                    <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-teal-600 h-[1.5] w-3/5 rounded-full" />
+                    </div>
+                    <div className="flex justify-between text-[10px] text-slate-400">
+                      <span>Below Range</span>
+                      <span>Above Range</span>
+                    </div>
+                  </div>
+
+                  {/* Data Sources */}
+                  <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2 flex justify-between items-center">
+                    <div>
+                      <div className="font-bold text-slate-900 text-xs mb-1">Data Sources</div>
+                      <div className="space-y-0.5 text-[10px] text-slate-600">
+                        <div>&bull; Government records</div>
+                        <div>&bull; Market data</div>
+                        <div>&bull; Location data</div>
+                        <div>&bull; Property records</div>
+                      </div>
+                    </div>
+
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-200 shrink-0">
+                      <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?q=80&w=200&auto=format&fit=crop" alt="Map" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-slate-950/40 flex items-center justify-center">
+                        <span className="text-[9px] font-bold text-white bg-slate-950/80 px-1.5 py-0.5 rounded">View map ↗</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ===================================================
+            SECTION 5: THE PROPTHAM DECISION ENGINE
+            =================================================== */}
+        <section className="py-20 px-6 sm:px-8 lg:px-12 bg-white border-b border-slate-100">
+          <div className="max-w-[1600px] mx-auto space-y-12">
+            <div className="text-center space-y-2">
+              <div className="text-xs font-semibold text-slate-400 uppercase tracking-[0.2em]">
+                FROM INFORMATION TO A CONFIDENT DECISION
+              </div>
+              <h2 className="font-anton text-3xl sm:text-4xl text-slate-900 tracking-wide uppercase">
+                The Proptham Decision Engine
+              </h2>
+              <p className="text-slate-500 text-sm max-w-md mx-auto">
+                A structured journey from research to action.
+              </p>
+            </div>
+
+            {/* Horizontal Flow Steps */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 max-w-5xl mx-auto">
+              {[
+                { title: "Research", icon: Search, desc: "Understand the property, locality and market." },
+                { title: "Analyse", icon: FileText, desc: "Get data-driven insights and price context." },
+                { title: "Verify", icon: Shield, desc: "Check what matters with LandCheck." },
+                { title: "Compare", icon: Scale, desc: "Evaluate your options side by side." },
+                { title: "Decide", icon: CheckCircle2, desc: "Make a confident decision with clarity." },
+              ].map((step, idx, arr) => {
+                const Icon = step.icon
+                return (
+                  <div key={step.title} className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left">
+                    <div className="flex flex-col items-center text-center space-y-3 max-w-[160px]">
+                      <div className="w-14 h-14 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-800 shadow-xs hover:border-teal-500 transition-colors">
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-bold text-slate-900 text-sm">{step.title}</h3>
+                      <p className="text-[11px] text-slate-500 leading-snug">{step.desc}</p>
+                    </div>
+
+                    {idx < arr.length - 1 && (
+                      <div className="hidden md:block text-slate-300 mx-2">
+                        <ArrowRight className="h-5 w-5" />
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ===================================================
+            SECTION 6: CONVERSATIONAL INTELLIGENCE / ASK PROPTHAM
+            =================================================== */}
+        <section className="py-20 px-6 sm:px-8 lg:px-12 bg-[#F7F5F0] border-b border-slate-200">
+          <div className="max-w-[1600px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Content */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="text-xs font-semibold text-slate-400 uppercase tracking-[0.2em]">
+                CONVERSATIONAL INTELLIGENCE
+              </div>
+
+              <h2 className="font-anton text-4xl sm:text-5xl text-slate-900 tracking-wide uppercase leading-tight">
+                Ask the property question you don&apos;t know how to ask.
+              </h2>
+
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+                Get clear, context-aware answers backed by real data, sources, and next steps.
+              </p>
+
+              <div>
+                <button
+                  onClick={() => openWidget()}
+                  className="bg-slate-950 text-white hover:bg-slate-800 text-xs font-semibold px-6 py-3.5 rounded-full inline-flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
+                >
+                  Ask Proptham <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Right Chat Mockup UI Container */}
+            <div className="lg:col-span-7">
+              <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl p-6 sm:p-8 space-y-5">
+                
+                {/* User Message 1 */}
+                <div className="flex justify-end">
+                  <div className="bg-slate-100 text-slate-900 px-4 py-2.5 rounded-2xl rounded-tr-xs text-xs font-medium max-w-sm">
+                    Is this property fairly priced for OMR?
+                  </div>
+                </div>
+
+                {/* Proptham Response 1 */}
+                <div className="flex gap-3 items-start">
+                  <div className="w-8 h-8 rounded-full bg-slate-950 text-white font-anton flex items-center justify-center text-sm shrink-0">
+                    P
+                  </div>
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl rounded-tl-xs p-4 text-xs space-y-3 max-w-lg">
+                    <div className="font-bold text-slate-900">Proptham:</div>
+                    <p className="text-slate-700 leading-relaxed">
+                      Based on the available market data, the asking price of ₹1.18 Cr is within the observed range for comparable properties in OMR.
+                    </p>
+                    <div className="text-[11px] font-semibold text-slate-500 space-y-1">
+                      <div>Two factors require attention:</div>
+                      <div className="text-slate-700 font-normal">&bull; 1. Title verification is pending.</div>
+                      <div className="text-slate-700 font-normal">&bull; 2. Check for any encumbrance records.</div>
+                    </div>
+                    <div className="pt-1">
+                      <Link href="/property-analysis" className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-semibold text-slate-800 hover:bg-slate-50 inline-flex items-center gap-1">
+                        View full analysis <ChevronRight className="h-3 w-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+                {/* User Message 2 */}
+                <div className="flex justify-end pt-2">
+                  <div className="bg-slate-100 text-slate-900 px-4 py-2.5 rounded-2xl rounded-tr-xs text-xs font-medium max-w-sm">
+                    What should I verify before buying?
+                  </div>
+                </div>
+
+                {/* Proptham Response 2 */}
+                <div className="flex gap-3 items-start">
+                  <div className="w-8 h-8 rounded-full bg-slate-950 text-white font-anton flex items-center justify-center text-sm shrink-0">
+                    P
+                  </div>
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl rounded-tl-xs p-4 text-xs space-y-3 max-w-lg">
+                    <div className="font-bold text-slate-900">Proptham:</div>
+                    <p className="text-slate-700 leading-relaxed">
+                      You should verify the following:
+                    </p>
+                    <ul className="space-y-1 text-[11px] text-slate-700 font-medium">
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600" /> Ownership and title documents</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600" /> Encumbrance certificate</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600" /> RERA registration (if applicable)</li>
+                      <li className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-emerald-600" /> Approved building plan and land use</li>
+                    </ul>
+                    <div className="pt-1">
+                      <Link href="/landcheck" className="px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-[11px] font-semibold text-slate-800 hover:bg-slate-50 inline-flex items-center gap-1">
+                        Start verification with LandCheck <ChevronRight className="h-3 w-3" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        {/* ===================================================
+            SECTION 7: RESEARCH DISCOVERY SECTION
+            =================================================== */}
+        <section className="py-20 px-6 sm:px-8 lg:px-12 bg-white border-b border-slate-100">
+          <div className="max-w-[1600px] mx-auto space-y-8">
+            
+            {/* Header Flex */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-slate-400 uppercase tracking-[0.2em]">
+                  RESEARCH WITH CONTEXT
+                </div>
+                <h2 className="font-anton text-3xl sm:text-4xl text-slate-900 tracking-wide uppercase">
+                  Explore property research
+                </h2>
+                <p className="text-slate-500 text-sm">
+                  Guides, insights and analysis to help you make informed decisions.
+                </p>
+              </div>
+
+              <div>
+                <Link
+                  href="/research"
+                  className="px-4 py-2.5 rounded-full border border-slate-300 text-slate-800 hover:bg-slate-50 font-semibold text-xs inline-flex items-center gap-1.5 transition-colors"
+                >
+                  View all research <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            {/* 5 Cards Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              {[
+                { title: "Property Research", desc: "How to evaluate a property before buying", href: "/guides/buying", img: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?q=80&w=400&auto=format&fit=crop" },
+                { title: "Price Intelligence", desc: "How to understand property prices", href: "/price-intelligence", img: "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?q=80&w=400&auto=format&fit=crop" },
+                { title: "Location Intelligence", desc: "How to evaluate a locality", href: "/location-analysis", img: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=400&auto=format&fit=crop" },
+                { title: "Due Diligence", desc: "What should you verify?", href: "/property-due-diligence", img: "https://images.unsplash.com/photo-1600585153490-76fb20a32601?q=80&w=400&auto=format&fit=crop" },
+                { title: "Investment Research", desc: "How to research an investment property", href: "/guides/investment", img: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=400&auto=format&fit=crop" },
+              ].map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all group flex flex-col justify-between h-56"
+                >
+                  <div className="h-28 w-full overflow-hidden bg-slate-100 relative">
+                    <img
+                      src={item.img}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-xs">{item.title}</h3>
+                      <p className="text-[11px] text-slate-500 mt-1 leading-snug">{item.desc}</p>
+                    </div>
+                    <div className="flex justify-end pt-2">
+                      <ArrowRight className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-900 transition-colors" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+          </div>
+        </section>
+
+        {/* ===================================================
+            SECTION 8: FINAL CALL TO ACTION
+            =================================================== */}
+        <section className="py-20 px-6 sm:px-8 lg:px-12 bg-white">
+          <div className="max-w-[1600px] mx-auto">
+            <div className="relative rounded-3xl overflow-hidden bg-slate-100 border border-slate-200 min-h-[380px] flex items-center">
+              
+              {/* Background Architectural Crop */}
+              <div className="absolute inset-0 z-0">
+                <img
+                  src="https://images.unsplash.com/photo-1600585153490-76fb20a32601?q=80&w=1600&auto=format&fit=crop"
+                  alt="Proptham Modern Luxury Real Estate"
+                  className="w-full h-full object-cover object-right opacity-30 lg:opacity-60"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-100 via-slate-100/90 to-transparent lg:w-[60%]" />
+              </div>
+
+              {/* Content Box */}
+              <div className="relative z-10 max-w-xl p-8 sm:p-12 space-y-4">
+                <div className="text-xs font-semibold text-slate-400 uppercase tracking-[0.2em]">
+                  MAKE BETTER PROPERTY DECISIONS
+                </div>
+
+                <h2 className="font-anton text-4xl sm:text-5xl text-slate-900 tracking-wide uppercase leading-[0.95]">
+                  Before you decide,<br />know what you&apos;re deciding.
+                </h2>
+
+                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed">
+                  Research the property. Understand the context. Verify what matters. Compare your options. Make the decision with better information.
+                </p>
+
+                <div className="pt-4 flex flex-wrap gap-3">
+                  <Link
+                    href="/property-analysis"
+                    className="bg-slate-950 hover:bg-slate-800 text-white font-semibold text-xs px-6 py-3.5 rounded-full inline-flex items-center gap-2 transition-colors shadow-sm"
+                  >
+                    Analyse a Property <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                  <button
+                    onClick={() => openWidget()}
+                    className="bg-white hover:bg-slate-50 text-slate-950 border border-slate-300 font-semibold text-xs px-6 py-3.5 rounded-full inline-flex items-center gap-2 transition-colors cursor-pointer shadow-xs"
+                  >
+                    Ask Proptham <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+      </main>
+
       <AppFooter />
     </div>
   )
